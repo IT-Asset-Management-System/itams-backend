@@ -1,5 +1,6 @@
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GithubRepositoryModule } from './modules/githubRepository/githubRepository.module';
 
 export const Modules = [
   ConfigModule.forRoot({}),
@@ -13,4 +14,5 @@ export const Modules = [
     entities: [__dirname + '/model/entities/**/*{.ts,.js}'],
     synchronize: true,
   }),
+  GithubRepositoryModule,
 ];
