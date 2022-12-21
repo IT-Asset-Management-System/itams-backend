@@ -1,5 +1,7 @@
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 
 export const Modules = [
   ConfigModule.forRoot({}),
@@ -10,7 +12,9 @@ export const Modules = [
     username: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
-    entities: [__dirname + '/model/entities/**/*{.ts,.js}'],
+    entities: [__dirname + '/models/entities/**/*{.ts,.js}'],
     synchronize: true,
   }),
+  AuthModule,
+  UsersModule,
 ];
