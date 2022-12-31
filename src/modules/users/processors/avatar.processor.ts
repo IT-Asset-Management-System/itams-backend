@@ -66,13 +66,6 @@ export class AvatarProcessor {
           }
         });
 
-        fs.unlink('./uploads/avatars/70x70/' + user.avatar, (err) => {
-          if (err) {
-            console.error(err);
-            return err;
-          }
-        });
-
         fs.unlink('./uploads/avatars/original/' + user.avatar, (err) => {
           if (err) {
             console.error(err);
@@ -88,9 +81,6 @@ export class AvatarProcessor {
       sharp(job.data.file.path)
         .resize(40, 40)
         .toFile('./uploads/avatars/40x40/' + job.data.file.filename);
-      sharp(job.data.file.path)
-        .resize(70, 70)
-        .toFile('./uploads/avatars/70x70/' + job.data.file.filename);
     } catch (error) {
       this.logger.error('Failed to resize and save avatar');
     }

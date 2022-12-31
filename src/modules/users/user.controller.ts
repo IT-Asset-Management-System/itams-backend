@@ -45,26 +45,12 @@ export class UserController {
     return await this.userService.addAvatarToQueue(request.user.id, file);
   }
 
-  @Get('get-avatar-40x40')
+  @Get('get-avatar')
   @UseGuards(JwtAuthGuard)
-  async findAvatar40(@Req() request: RequestWithUser, @Res() res) {
-    const user = await this.userService.getUserById(request.user.id);
-
+  async findAvatar(@Req() request: RequestWithUser, @Res() res) {
     return of(
       res.sendFile(
-        join(process.cwd(), './uploads/avatars/40x40/' + user.avatar),
-      ),
-    );
-  }
-
-  @Get('get-avatar-70x70')
-  @UseGuards(JwtAuthGuard)
-  async findAvatar70(@Req() request: RequestWithUser, @Res() res) {
-    const user = await this.userService.getUserById(request.user.id);
-
-    return of(
-      res.sendFile(
-        join(process.cwd(), './uploads/avatars/70x70/' + user.avatar),
+        join(process.cwd(), './uploads/avatars/40x40/' + request.user.avatar),
       ),
     );
   }

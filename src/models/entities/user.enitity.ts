@@ -37,11 +37,14 @@ export class UserEntity extends BaseEntity {
   })
   location: string;
 
-  @Column('date')
-  @Column({
-    default: null,
-  })
-  birthday: Date;
+  @Column({ default: null })
+  phone: string;
+
+  // @Column('date')
+  // @Column({
+  //   default: null,
+  // })
+  // birthday: Date;
 }
 
 export default UserEntity;

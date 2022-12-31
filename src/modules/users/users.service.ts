@@ -84,20 +84,6 @@ export class UsersService {
         }
       });
 
-      fs.unlink('./uploads/avatars/70x70/' + user.avatar, (err) => {
-        if (err) {
-          console.error(err);
-          return err;
-        }
-      });
-
-      fs.unlink('./uploads/avatars/70x70/' + user.avatar, (err) => {
-        if (err) {
-          console.error(err);
-          return err;
-        }
-      });
-
       fs.unlink('./uploads/avatars/original/' + user.avatar, (err) => {
         if (err) {
           console.error(err);
@@ -117,6 +103,7 @@ export class UsersService {
   async updateProfile(userId: number, userData: UpdateProfileDto) {
     let toUpdate = await this.getUserById(userId);
 
+    // TODO why delete?
     delete toUpdate.password;
     delete toUpdate.username;
 

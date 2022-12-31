@@ -8,6 +8,10 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   location: string;
+
+  @IsOptional()
+  @IsString()
+  phone: string;
 }
 
 export default UpdateProfileDto;

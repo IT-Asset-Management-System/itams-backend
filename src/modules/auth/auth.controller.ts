@@ -4,8 +4,9 @@ import {
   Post,
   Get,
   Request,
-  Req,
   UseGuards,
+  ClassSerializerInterceptor,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -21,15 +22,16 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  authenticate(@Req() request: RequestWithUser) {
-    const user = request.body;
+  @UseInterceptors(ClassSerializerInterceptor)
+  authenticate(@Request() request: RequestWithUser) {
+    const user = request.user;
     return user;
   }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() request: RequestWithUser) {
-    return this.authService.login(request.body);
+    return this.authService.login(request.user);
   }
 
   @Post('register')
