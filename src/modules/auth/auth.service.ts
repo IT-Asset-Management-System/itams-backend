@@ -1,4 +1,9 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  ConsoleLogger,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import RegisterDto from './dtos/register.dto';
@@ -47,6 +52,16 @@ export class AuthService {
       console.log(error);
       throw new HttpException('Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async changePassword(
+    username: string,
+    hashPassword: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    await this.checkPassword(currentPassword, hashPassword);
+    await this.usersService.setNewPassword(username, newPassword);
   }
 
   private async checkPassword(rawPassword: string, hashedPassword: string) {

@@ -4,6 +4,7 @@ import { BullModule } from '@nestjs/bull';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { AssetModule } from './modules/asset/asset.module';
+import { CategoryModule } from './modules/category/categories.module';
 
 export const Modules = [
   ConfigModule.forRoot({}),
@@ -26,4 +27,5 @@ export const Modules = [
   AuthModule,
   UsersModule,
   AssetModule,
+  CategoryModule,
 ];

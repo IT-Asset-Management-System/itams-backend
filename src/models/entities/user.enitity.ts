@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import AssetToUser from './assetToUser.entity';
+import { RequestAsset } from './requestAssest.entity';
 
 @Entity()
 export class UserEntity extends BaseEntity {
@@ -43,6 +44,9 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => AssetToUser, (assetToUser) => assetToUser.user)
   assetToUsers: AssetToUser[];
+
+  @OneToMany(() => RequestAsset, (requestAsset) => requestAsset.user)
+  requestAssets: RequestAsset[];
 
   // @Column('date')
   // @Column({
