@@ -11,7 +11,7 @@ export class CategoryService {
     @InjectRepository(Category) private categoryRepo: CategoryRepository,
   ) {}
 
-  async getCategories() {
+  async getAllCategories() {
     const categories = await this.categoryRepo.find();
     return categories;
   }

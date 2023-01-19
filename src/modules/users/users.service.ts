@@ -33,10 +33,10 @@ export class UsersService {
       return user;
     }
 
-    throw new HttpException(
-      'No user with this username has been found',
-      HttpStatus.NOT_FOUND,
-    );
+    // throw new HttpException(
+    //   'No user with this username has been found',
+    //   HttpStatus.NOT_FOUND,
+    // );
   }
 
   async getUserById(id: number) {

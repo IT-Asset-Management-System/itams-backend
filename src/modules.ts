@@ -4,7 +4,10 @@ import { BullModule } from '@nestjs/bull';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { AssetModule } from './modules/asset/asset.module';
-import { CategoryModule } from './modules/category/categories.module';
+import { CategoryModule } from './modules/category/category.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { ManufacturerModule } from './modules/manufacturer/manufacturer.module';
+import { SupplierModule } from './modules/supplier/supplier.module';
 
 export const Modules = [
   ConfigModule.forRoot({}),
@@ -26,6 +29,9 @@ export const Modules = [
   }),
   AuthModule,
   UsersModule,
+  AdminModule,
   AssetModule,
   CategoryModule,
+  ManufacturerModule,
+  SupplierModule,
 ];

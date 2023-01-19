@@ -5,7 +5,9 @@ import AssetToUser from 'src/models/entities/assetToUser.entity';
 import { RequestAsset } from 'src/models/entities/requestAssest.entity';
 import { AssetRepository } from 'src/models/repositories/asset.repository';
 import { AssetToUserRepository } from 'src/models/repositories/assetToUser.repository';
-import { CategoryModule } from '../category/categories.module';
+import { CategoryModule } from '../category/category.module';
+import { ManufacturerModule } from '../manufacturer/manufacturer.module';
+import { SupplierModule } from '../supplier/supplier.module';
 import { UsersModule } from '../users/users.module';
 import { AssetController } from './asset.controller';
 import { AssetService } from './asset.service';
@@ -15,6 +17,8 @@ import { AssetService } from './asset.service';
     TypeOrmModule.forFeature([Asset, AssetToUser, RequestAsset]),
     UsersModule,
     CategoryModule,
+    ManufacturerModule,
+    SupplierModule,
   ],
   controllers: [AssetController],
   providers: [

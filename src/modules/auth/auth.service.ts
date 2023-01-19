@@ -8,11 +8,13 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import RegisterDto from './dtos/register.dto';
 import * as bcrypt from 'bcrypt';
+import { AdminService } from '../admin/admin.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
+    private readonly adminService: AdminService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -25,6 +27,15 @@ export class AuthService {
     return null;
   }
 
+  async validateAdmin(username: string, pass: string): Promise<any> {
+    const admin = await this.adminService.getAdminByUsername(username);
+    if (admin && this.checkPassword(pass, admin.password)) {
+      const { password, ...result } = admin;
+      return result;
+    }
+    return null;
+  }
+
   async login(user: any) {
     const payload = { username: user.username, sub: user.id };
     return {
@@ -32,7 +43,14 @@ export class AuthService {
     };
   }
 
-  public async register(registerDto: RegisterDto) {
+  async loginAdmin(admin: any) {
+    const payload = { username: admin.username, sub: admin.id };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  public async createUser(registerDto: RegisterDto) {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
     try {
@@ -62,6 +80,16 @@ export class AuthService {
   ) {
     await this.checkPassword(currentPassword, hashPassword);
     await this.usersService.setNewPassword(username, newPassword);
+  }
+
+  async changePasswordAdmin(
+    username: string,
+    hashPassword: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    await this.checkPassword(currentPassword, hashPassword);
+    await this.adminService.setNewPassword(username, newPassword);
   }
 
   private async checkPassword(rawPassword: string, hashedPassword: string) {

@@ -7,10 +7,14 @@ import { jwtConstants } from './auth.constant';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { AuthController } from './auth.controller';
+import { AdminModule } from '../admin/admin.module';
+import { LocalAdminStrategy } from './strategies/local-admin.strategy';
+import { JwtAdminStrategy } from './strategies/jwt-admin.strategy';
 
 @Module({
   imports: [
     UsersModule,
+    AdminModule,
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
@@ -18,7 +22,13 @@ import { AuthController } from './auth.controller';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    LocalAdminStrategy,
+    JwtAdminStrategy,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}
