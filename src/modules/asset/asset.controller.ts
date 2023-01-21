@@ -50,9 +50,7 @@ export class AssetController {
 
   @Delete('delete-asset')
   @UseGuards(JwtAdminAuthGuard)
-  async deleteAsset(
-    @Body('id', ParseIntPipe) id: number,
-  ) {
+  async deleteAsset(@Body('id', ParseIntPipe) id: number) {
     return await this.assetService.deleteAsset(id);
   }
 
@@ -76,7 +74,7 @@ export class AssetController {
   ) {
     return await this.assetService.createNewRequestAsset(
       request.user.id,
-      newRequest.categoryId,
+      newRequest.assetModelId,
     );
   }
 }

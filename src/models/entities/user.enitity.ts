@@ -4,10 +4,13 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
+  ManyToOne,
   BaseEntity,
   OneToMany,
 } from 'typeorm';
 import AssetToUser from './assetToUser.entity';
+import Department from './department.entity';
+import Location from './location.entity';
 import { RequestAsset } from './requestAssest.entity';
 
 @Entity()
@@ -34,10 +37,8 @@ export class UserEntity extends BaseEntity {
   })
   avatar: string;
 
-  @Column({
-    default: null,
-  })
-  location: string;
+  @ManyToOne(() => Department, (department) => department.users)
+  department: Department;
 
   @Column({ default: null })
   phone: string;

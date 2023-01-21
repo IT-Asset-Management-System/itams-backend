@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Category } from './category.entity';
+import AssetModel from './assetModel.entity';
 import UserEntity from './user.enitity';
 
 @Entity()
@@ -19,8 +19,8 @@ export class RequestAsset {
   @Column({ default: 'requested' })
   status: string;
 
-  @ManyToOne(() => Category, (category) => category.requestAssets)
-  category: Category;
+  @ManyToOne(() => AssetModel, (assetModel) => assetModel.requestAssets)
+  assetModel: AssetModel;
 
   @ManyToOne(() => UserEntity, (userEntity) => userEntity.requestAssets)
   user: UserEntity;

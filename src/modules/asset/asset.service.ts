@@ -12,8 +12,9 @@ import { RequestAsset } from 'src/models/entities/requestAssest.entity';
 import { AssetRepository } from 'src/models/repositories/asset.repository';
 import { AssetToUserRepository } from 'src/models/repositories/assetToUser.repository';
 import { RequestAssetRepository } from 'src/models/repositories/requestAsset.repository';
-import { CategoryService } from '../category/category.service';
-import { ManufacturerService } from '../manufacturer/manufacturer.service';
+import { AssetModelService } from '../assetModel/assetModel.service';
+import { DepartmentService } from '../department/department.service';
+import { StatusService } from '../status/status.service';
 import { SupplierService } from '../supplier/supplier.service';
 import { UsersService } from '../users/users.service';
 import { AssetDto } from './dtos/asset.dto';
@@ -30,22 +31,29 @@ export class AssetService {
     @InjectRepository(RequestAsset)
     private requestAssetRepo: RequestAssetRepository,
     private userService: UsersService,
-    private categoryService: CategoryService,
-    private manufacturerService: ManufacturerService,
+    private assetModelService: AssetModelService,
+    private departmentService: DepartmentService,
+    private statusService: StatusService,
     private supplierService: SupplierService,
   ) {}
 
   async getAll() {
     const assets = await this.assetRepo.find({
-      relations: { supplier: true, manufacturer: true, category: true },
+      relations: {
+        assetModel: true,
+        department: true,
+        status: true,
+        supplier: true,
+      },
     });
     const res = assets.map((asset) => {
-      const { category, manufacturer, supplier, ...rest } = asset;
+      const { assetModel, department, status, supplier, ...rest } = asset;
       return {
         ...rest,
-        category: asset?.category?.name,
+        assetModel: asset?.assetModel?.name,
+        department: asset?.department?.name,
+        status: asset?.status?.name,
         supplier: asset?.supplier?.name,
-        manufacturer: asset?.manufacturer?.name,
       };
     });
     return res;
@@ -54,34 +62,41 @@ export class AssetService {
   async getAssetById(id: number) {
     const asset: Asset = await this.assetRepo.findOne({
       where: { id },
-      relations: { supplier: true, manufacturer: true, category: true },
+      relations: {
+        assetModel: true,
+        department: true,
+        status: true,
+        supplier: true,
+      },
     });
-    const { category, manufacturer, supplier, ...rest } = asset;
+    const { assetModel, department, status, supplier, ...rest } = asset;
     return {
       ...rest,
-      category: asset?.category?.name,
+      assetModel: asset?.assetModel?.name,
+      department: asset?.department?.name,
+      status: asset?.status?.name,
       supplier: asset?.supplier?.name,
-      manufacturer: asset?.manufacturer?.name,
     };
   }
 
   async createNewAsset(assetDto: AssetDto) {
-    const category = await this.categoryService.getCategoryById(
-      assetDto.categoryId,
+    const assetModel = await this.assetModelService.getAssetModelById(
+      assetDto.assetModelId,
     );
-    const manufacturer = await this.manufacturerService.getManufacturerById(
-      assetDto.manufacturerId,
+    const department = await this.departmentService.getDepartmentById(
+      assetDto.departmentId,
     );
+    const status = await this.statusService.getStatusById(assetDto.statusId);
     const supplier = await this.supplierService.getSupplierById(
       assetDto.supplierId,
     );
 
     const asset = new Asset();
     asset.name = assetDto.name;
-    asset.status = assetDto.status;
     asset.purchase_cost = assetDto.purchase_cost;
-    asset.category = category;
-    asset.manufacturer = manufacturer;
+    asset.assetModel = assetModel;
+    asset.department = department;
+    asset.status = status;
     asset.supplier = supplier;
 
     await this.assetRepo.save(asset);
@@ -96,7 +111,7 @@ export class AssetService {
   }
 
   async deleteAsset(id: number) {
-    return await this.assetRepo.delete({id});
+    return await this.assetRepo.delete({ id });
   }
 
   async getAssetToUser(userId: number) {
@@ -111,13 +126,19 @@ export class AssetService {
           where: {
             id: assetId,
           },
-          relations: { category: true, manufacturer: true, supplier: true },
+          relations: {
+            assetModel: true,
+            department: true,
+            status: true,
+            supplier: true,
+          },
         });
         return {
           ...assetToUser.asset,
-          category: asset.category.name,
-          manufacturer: asset.manufacturer.name,
-          supplier: asset.supplier.name,
+          assetModel: asset?.assetModel?.name,
+          department: asset?.department?.name,
+          status: asset?.status?.name,
+          supplier: asset?.supplier?.name,
         };
       }),
     );
@@ -127,11 +148,11 @@ export class AssetService {
   async getAssetRequestedByUser(id: number) {
     const requestAsset = await this.requestAssetRepo.find({
       where: { user: { id } },
-      relations: { category: true },
+      relations: { assetModel: true },
     });
     const res = requestAsset.map((r: RequestAsset) => {
-      const { category, ...rest } = r;
-      return { ...rest, category: category.name };
+      const { assetModel, ...rest } = r;
+      return { ...rest, assetModel: assetModel.name };
     });
     return res;
   }
@@ -143,13 +164,15 @@ export class AssetService {
     // user.requestAssets.push(newRequestAsset);
     // await this.userService.saveUser(user);
 
-    const category = await this.categoryService.getCategoryById(categoryId);
+    const assetModel = await this.assetModelService.getAssetModelById(
+      categoryId,
+    );
     // category.requestAssets.push(newRequestAsset);
     // await this.categoryService.saveCategory(category);
-    if (!category)
+    if (!assetModel)
       throw new HttpException('Category not exist', HttpStatus.BAD_REQUEST);
     newRequestAsset.user = user;
-    newRequestAsset.category = category;
+    newRequestAsset.assetModel = assetModel;
     await this.requestAssetRepo.save(newRequestAsset);
     return newRequestAsset;
   }

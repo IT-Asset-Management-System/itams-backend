@@ -5,8 +5,9 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Category } from './category.entity';
-import Manufacturer from './manufacturer.entity';
+import AssetModel from './assetModel.entity';
+import Department from './department.entity';
+import Status from './status.entity';
 import Supplier from './supplier.entity';
 
 @Entity()
@@ -18,19 +19,19 @@ export class Asset extends BaseEntity {
   name: string;
 
   @Column({ default: null })
-  status: string;
-
-  @Column({ default: null })
   purchase_cost: number;
+
+  @ManyToOne(() => AssetModel, (assetModel) => assetModel.assets)
+  assetModel: AssetModel;
+
+  @ManyToOne(() => Department, (department) => department.assets)
+  department: Department;
+
+  @ManyToOne(() => Status, (status) => status.assets)
+  status: Status;
 
   @ManyToOne(() => Supplier, (supplier) => supplier.assets)
   supplier: Supplier;
-
-  @ManyToOne(() => Manufacturer, (manufacturer) => manufacturer.assets)
-  manufacturer: Manufacturer;
-
-  @ManyToOne(() => Category, (category) => category.assets)
-  category: Category;
 }
 
 export default Asset;

@@ -18,6 +18,7 @@ import RequestWithUser from './interfaces/request-with-user.interface';
 import ChangePasswordDto from './dtos/change-passord.dto';
 import { LocalAdminAuthGuard } from './guards/local-admin-auth.guard';
 import { JwtAdminAuthGuard } from './guards/jwt-admin-auth.guard';
+import CreateUserDto from '../users/dtos/create-user.dto';
 
 @ApiTags('auth')
 @Controller('auth')

@@ -8,21 +8,20 @@ export class AssetDto {
   name: string;
 
   @ApiProperty({ required: true })
-  @IsString()
-  @IsNotEmpty()
-  status: string;
-
-  @ApiProperty({ required: true })
   @IsNotEmpty()
   purchase_cost: number;
 
   @ApiProperty({ required: true })
   @IsNotEmpty()
-  categoryId: number;
+  assetModelId: number;
 
   @ApiProperty({ required: true })
   @IsNotEmpty()
-  manufacturerId: number;
+  departmentId: number;
+
+  @ApiProperty({ required: true })
+  @IsNotEmpty()
+  statusId: number;
 
   @ApiProperty({ required: true })
   @IsNotEmpty()

@@ -8,6 +8,9 @@ import { CategoryModule } from './modules/category/category.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { ManufacturerModule } from './modules/manufacturer/manufacturer.module';
 import { SupplierModule } from './modules/supplier/supplier.module';
+import { StatusModule } from './modules/status/status.module';
+import { LocationModule } from './modules/location/location.module';
+import { DepartmentModule } from './modules/department/department.module';
 
 export const Modules = [
   ConfigModule.forRoot({}),
@@ -34,4 +37,8 @@ export const Modules = [
   CategoryModule,
   ManufacturerModule,
   SupplierModule,
+  StatusModule,
+  LocationModule,
+  DepartmentModule,
+  AssetModule,
 ];

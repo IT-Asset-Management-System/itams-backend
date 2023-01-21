@@ -4,5 +4,5 @@ import { IsNotEmpty } from 'class-validator';
 export class NewRequestAsset {
   @ApiProperty({ required: true })
   @IsNotEmpty()
-  categoryId: number;
+  assetModelId: number;
 }

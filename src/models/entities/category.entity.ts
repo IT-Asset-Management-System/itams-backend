@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import Asset from './asset.entity';
+import AssetModel from './assetModel.entity';
 import { RequestAsset } from './requestAssest.entity';
 
 @Entity()
@@ -10,9 +11,6 @@ export class Category {
   @Column({ default: null })
   name: string;
 
-  @OneToMany(() => Asset, (asset) => asset.category)
-  assets: Asset[];
-
-  @OneToMany(() => RequestAsset, (requestAsset) => requestAsset.category)
-  requestAssets: RequestAsset[];
+  @OneToMany(() => AssetModel, (assetModel) => assetModel.category)
+  assetModels: AssetModel[];
 }

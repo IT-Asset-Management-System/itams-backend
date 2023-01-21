@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import UserEntity from 'src/models/entities/user.enitity';
 import { UserRepository } from 'src/models/repositories/user.repository';
-import { CreateUserDto } from './dtos/create-user.dto';
+import CreateUserDto  from './dtos/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { InjectQueue } from '@nestjs/bull';
 import {
