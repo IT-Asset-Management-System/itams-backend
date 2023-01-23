@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import Asset from './asset.entity';
+import License from './license.entity';
 
 @Entity()
 export class Supplier extends BaseEntity {
@@ -17,6 +18,9 @@ export class Supplier extends BaseEntity {
 
   @OneToMany(() => Asset, (asset) => asset.supplier)
   assets: Asset[];
+
+  @OneToMany(() => License, (license) => license.supplier)
+  licenses: License[];
 }
 
 export default Supplier;

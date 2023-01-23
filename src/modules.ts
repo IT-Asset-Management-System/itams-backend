@@ -11,6 +11,7 @@ import { SupplierModule } from './modules/supplier/supplier.module';
 import { StatusModule } from './modules/status/status.module';
 import { LocationModule } from './modules/location/location.module';
 import { DepartmentModule } from './modules/department/department.module';
+import { LicenseModule } from './modules/license/license.module';
 
 export const Modules = [
   ConfigModule.forRoot({}),
@@ -41,4 +42,5 @@ export const Modules = [
   LocationModule,
   DepartmentModule,
   AssetModule,
+  LicenseModule,
 ];
