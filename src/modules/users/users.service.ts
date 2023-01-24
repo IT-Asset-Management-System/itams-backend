@@ -12,8 +12,9 @@ import {
 } from './user.constants';
 import { Queue } from 'bull';
 import UpdateProfileDto from './dtos/update-profile.dto';
-import { unlink } from 'fs';
 import * as fs from 'fs';
+import { DepartmentService } from '../department/department.service';
+import { UserDto } from './dtos/user.dto';
 
 @Injectable()
 export class UsersService {
@@ -24,7 +25,68 @@ export class UsersService {
     private userRepo: UserRepository,
     @InjectQueue(AVATAR_QUEUE)
     private avatarQueue: Queue,
+    private departmentService: DepartmentService,
   ) {}
+
+  async getAll() {
+    const users = await this.userRepo.find({ relations: { department: true } });
+    const res = users.map((user) => {
+      const { department, password, ...rest } = user;
+      return {
+        ...rest,
+        department: department?.name,
+      };
+    });
+    return res;
+  }
+
+  async getUserByUserId(id: number) {
+    const user = await this.userRepo.findOne({
+      where: { id },
+      relations: { department: true },
+    });
+    const { department, password, ...rest } = user;
+    if (user) {
+      return { ...rest, department: department.name };
+    }
+
+    throw new HttpException(
+      'No user with this ID has been found',
+      HttpStatus.NOT_FOUND,
+    );
+  }
+
+  async createNewUser(userDto: UserDto) {
+    const department = await this.departmentService.getDepartmentById(
+      userDto.departmentId,
+    );
+
+    const user = new UserEntity();
+    user.name = userDto.name;
+    user.username = userDto.username;
+    user.password = await bcrypt.hash(userDto.password, 10);
+    user.avatar = userDto.avatar;
+    user.department = department;
+
+    await this.userRepo.save(user);
+    return user;
+  }
+
+  async updateUser(id: number, userDto: UserDto) {
+    let toUpdate = await this.userRepo.findOneBy({ id });
+    let { password, departmentId, ...rest } = userDto;
+    const department = await this.departmentService.getDepartmentById(
+      userDto.departmentId,
+    );
+    let updated = Object.assign(toUpdate, rest);
+    updated.password = await bcrypt.hash(userDto.password, 10);
+    updated.department = department;
+    return await this.userRepo.save(updated);
+  }
+
+  async deleteUser(id: number) {
+    return await this.userRepo.delete({ id });
+  }
 
   async getUserByUsername(username: string) {
     const user = await this.userRepo.findOneBy({ username });

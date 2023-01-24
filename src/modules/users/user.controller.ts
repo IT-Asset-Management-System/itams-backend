@@ -1,8 +1,10 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
+  ParseIntPipe,
   Post,
   Put,
   Req,
@@ -14,20 +16,57 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { of } from 'rxjs';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { join } from 'path';
 import RequestWithUser from '../auth/interfaces/request-with-user.interface';
 import UpdateProfileDto from './dtos/update-profile.dto';
 import { avatarStorageOptions } from './helpers/avatar-storage';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
+import { JwtAllAuthGuard } from '../auth/guards/jwt-all-auth.guard';
+import { UserDto } from './dtos/user.dto';
 
 @ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private userService: UsersService) {}
 
+  @Get('all-users')
+  @UseGuards(JwtAdminAuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getAllUsers() {
+    return await this.userService.getAll();
+  }
+
+  @Get('get-user-by-id')
+  @UseGuards(JwtAdminAuthGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getUserById(@Body('id', ParseIntPipe) id: number) {
+    return await this.userService.getUserByUserId(id);
+  }
+
+  @Post('create-user')
+  @UseGuards(JwtAdminAuthGuard)
+  async createUser(@Body() userDto: UserDto) {
+    return await this.userService.createNewUser(userDto);
+  }
+
+  @Put('update-user')
+  @UseGuards(JwtAdminAuthGuard)
+  async updateUser(
+    @Body() userDto: UserDto,
+    @Body('id', ParseIntPipe) id: number,
+  ) {
+    return await this.userService.updateUser(id, userDto);
+  }
+
+  @Delete('delete-user')
+  @UseGuards(JwtAdminAuthGuard)
+  async deleteUser(@Body('id', ParseIntPipe) id: number) {
+    return await this.userService.deleteUser(id);
+  }
+
   @Put('update-profile')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAllAuthGuard)
   async updateProfile(
     @Req() request: RequestWithUser,
     @Body() userData: UpdateProfileDto,
@@ -36,7 +75,7 @@ export class UserController {
   }
 
   @Post('save-avatar')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAllAuthGuard)
   @UseInterceptors(FileInterceptor('file', avatarStorageOptions))
   async saveAvatar(
     @UploadedFile() file: Express.Multer.File,
@@ -46,7 +85,7 @@ export class UserController {
   }
 
   @Get('get-avatar')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAllAuthGuard)
   async findAvatar(@Req() request: RequestWithUser, @Res() res) {
     return of(
       res.sendFile(
@@ -56,7 +95,7 @@ export class UserController {
   }
 
   @Delete('delete-avatar')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAllAuthGuard)
   async deleteAvatar(@Req() request: RequestWithUser) {
     return this.userService.deleteAvatar(request.user.id);
   }

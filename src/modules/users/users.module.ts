@@ -7,6 +7,7 @@ import { AVATAR_QUEUE } from './user.constants';
 import { UsersService } from './users.service';
 import { UserController } from './user.controller';
 import { AvatarProcessor } from './processors/avatar.processor';
+import { DepartmentModule } from '../department/department.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AvatarProcessor } from './processors/avatar.processor';
     BullModule.registerQueue({
       name: AVATAR_QUEUE,
     }),
+    DepartmentModule,
   ],
   controllers: [UserController],
   providers: [UsersService, UserRepository, AvatarProcessor],
