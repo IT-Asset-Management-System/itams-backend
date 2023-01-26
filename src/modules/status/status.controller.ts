@@ -1,6 +1,18 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Request,
+  Post,
+  Put,
+  Body,
+  ParseIntPipe,
+  Delete,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
 import { JwtAllAuthGuard } from '../auth/guards/jwt-all-auth.guard';
+import { StatusDto } from './dtos/status.dto';
 import { StatusService } from './status.service';
 
 @ApiTags('status')
@@ -12,5 +24,32 @@ export class StatusController {
   @UseGuards(JwtAllAuthGuard)
   async getAllStatuses() {
     return await this.statusService.getAllStatuses();
+  }
+
+  @Get('get-status-by-id')
+  @UseGuards(JwtAllAuthGuard)
+  async getStatusById(@Body('id', ParseIntPipe) id: number) {
+    return await this.statusService.getStatusById(id);
+  }
+
+  @Post('create-status')
+  @UseGuards(JwtAdminAuthGuard)
+  async createStatus(@Body() statusDto: StatusDto) {
+    return await this.statusService.createNewStatus(statusDto);
+  }
+
+  @Put('update-status')
+  @UseGuards(JwtAdminAuthGuard)
+  async updateStatus(
+    @Body() statusDto: StatusDto,
+    @Body('id', ParseIntPipe) id: number,
+  ) {
+    return await this.statusService.updateStatus(id, statusDto);
+  }
+
+  @Delete('delete-status')
+  @UseGuards(JwtAdminAuthGuard)
+  async deleteStatus(@Body('id', ParseIntPipe) id: number) {
+    return await this.statusService.deleteStatus(id);
   }
 }
