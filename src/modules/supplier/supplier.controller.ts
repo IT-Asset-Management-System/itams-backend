@@ -34,9 +34,7 @@ export class SupplierController {
   @Post('create-supplier')
   @UseGuards(JwtAdminAuthGuard)
   async createSupplier(@Body() supplierDto: SupplierDto) {
-    return await this.supplierService.createNewSupplier(
-      supplierDto,
-    );
+    return await this.supplierService.createNewSupplier(supplierDto);
   }
 
   @Put('update-supplier')
@@ -45,10 +43,7 @@ export class SupplierController {
     @Body() supplierDto: SupplierDto,
     @Body('id', ParseIntPipe) id: number,
   ) {
-    return await this.supplierService.updateSupplier(
-      id,
-      supplierDto,
-    );
+    return await this.supplierService.updateSupplier(id, supplierDto);
   }
 
   @Delete('delete-supplier')

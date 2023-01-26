@@ -56,8 +56,16 @@ export class AssetModelService {
 
   async updateAssetModel(id: number, assetModelDto: AssetModelDto) {
     let toUpdate = await this.assetModelRepo.findOneBy({ id });
-
-    let updated = Object.assign(toUpdate, assetModelDto);
+    let { categoryId, manufacturerId, ...rest } = assetModelDto;
+    const category = await this.categoryService.getCategoryById(
+      assetModelDto.categoryId,
+    );
+    const manufacturer = await this.manufacturerService.getManufacturerById(
+      assetModelDto.manufacturerId,
+    );
+    let updated = Object.assign(toUpdate, rest);
+    updated.category = category;
+    updated.manufacturer = manufacturer;
     return await this.assetModelRepo.save(updated);
   }
 
