@@ -11,7 +11,9 @@ export class StatusService {
   constructor(@InjectRepository(Status) private statusRepo: StatusRepository) {}
 
   async getAllStatuses() {
-    const statuses = await this.statusRepo.find({relations: {assets: true}});
+    const statuses = await this.statusRepo.find({
+      relations: { assets: true },
+    });
     const res = statuses.map((status) => {
       const { assets, ...rest } = status;
       return {
