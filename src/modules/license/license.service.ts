@@ -83,8 +83,20 @@ export class LicenseService {
 
   async updateLicense(id: number, licenseDto: LicenseDto) {
     let toUpdate = await this.licenseRepo.findOneBy({ id });
-
-    let updated = Object.assign(toUpdate, licenseDto);
+    let { categoryId, manufacturerId, supplierId, ...rest } = licenseDto;
+    const category = await this.categoryService.getCategoryById(
+      licenseDto.categoryId,
+    );
+    const manufacturer = await this.manufacturerService.getManufacturerById(
+      licenseDto.manufacturerId,
+    );
+    const supplier = await this.supplierService.getSupplierById(
+      licenseDto.supplierId,
+    );
+    let updated = Object.assign(toUpdate, rest);
+    updated.category = category;
+    updated.manufacturer = manufacturer;
+    updated.supplier = supplier;
     return await this.licenseRepo.save(updated);
   }
 

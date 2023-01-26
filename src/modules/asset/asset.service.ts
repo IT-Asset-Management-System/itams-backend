@@ -105,8 +105,23 @@ export class AssetService {
 
   async updateAsset(id: number, assetDto: AssetDto) {
     let toUpdate = await this.assetRepo.findOneBy({ id });
-
-    let updated = Object.assign(toUpdate, assetDto);
+    let { assetModelId, departmentId, statusId, supplierId, ...rest } =
+      assetDto;
+    const assetModel = await this.assetModelService.getAssetModelById(
+      assetDto.assetModelId,
+    );
+    const department = await this.departmentService.getDepartmentById(
+      assetDto.departmentId,
+    );
+    const status = await this.statusService.getStatusById(assetDto.statusId);
+    const supplier = await this.supplierService.getSupplierById(
+      assetDto.supplierId,
+    );
+    let updated = Object.assign(toUpdate, rest);
+    updated.assetModel = assetModel;
+    updated.department = department;
+    updated.status = status;
+    updated.supplier = supplier;
     return await this.assetRepo.save(updated);
   }
 
