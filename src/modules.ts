@@ -13,6 +13,7 @@ import { LocationModule } from './modules/location/location.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { LicenseModule } from './modules/license/license.module';
 import { SourceCodeModule } from './modules/sourceCode/sourceCode.module';
+import { DigitalContentModule } from './modules/digitalContent/digitalContent.module';
 
 export const Modules = [
   ConfigModule.forRoot({}),
@@ -44,4 +45,5 @@ export const Modules = [
   DepartmentModule,
   LicenseModule,
   SourceCodeModule,
+  DigitalContentModule,
 ];
