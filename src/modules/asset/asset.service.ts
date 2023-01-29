@@ -18,6 +18,7 @@ import { StatusService } from '../status/status.service';
 import { SupplierService } from '../supplier/supplier.service';
 import { UsersService } from '../users/users.service';
 import { AssetDto } from './dtos/asset.dto';
+import { AssetQueryDto } from './dtos/assetQuery.dto';
 
 @Injectable()
 export class AssetService {
@@ -37,13 +38,19 @@ export class AssetService {
     private supplierService: SupplierService,
   ) {}
 
-  async getAll() {
+  async getAll(assetQuery?: AssetQueryDto) {
     const assets = await this.assetRepo.find({
       relations: {
         assetModel: true,
         department: true,
         status: true,
         supplier: true,
+      },
+      where: {
+        assetModel: { id: assetQuery.assetModelId },
+        department: { id: assetQuery.departmentId },
+        status: { id: assetQuery.statusId },
+        supplier: { id: assetQuery.supplierId },
       },
     });
     const res = assets.map((asset) => {

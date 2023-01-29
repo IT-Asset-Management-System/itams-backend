@@ -8,12 +8,14 @@ import {
   Body,
   ParseIntPipe,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AssetService } from './asset.service';
 import { AssetDto } from './dtos/asset.dto';
+import { AssetQueryDto } from './dtos/assetQuery.dto';
 import { NewRequestAsset } from './dtos/new-request-asset.dto';
 
 @ApiTags('asset')
@@ -23,8 +25,8 @@ export class AssetController {
 
   @Get('all-assets')
   @UseGuards(JwtAdminAuthGuard)
-  async getAllAssets() {
-    return await this.assetService.getAll();
+  async getAllAssets(@Query() assetQuery: AssetQueryDto) {
+    return await this.assetService.getAll(assetQuery);
   }
 
   @Get('get-asset-by-id')
