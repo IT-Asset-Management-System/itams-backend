@@ -16,8 +16,11 @@ export class RequestAsset {
   @CreateDateColumn()
   date: Date;
 
-  @Column({ default: 'requested' })
+  @Column({ default: 'Requested' })
   status: string;
+
+  @Column({ default: null })
+  assetId: number;
 
   @ManyToOne(() => AssetModel, (assetModel) => assetModel.requestAssets)
   assetModel: AssetModel;

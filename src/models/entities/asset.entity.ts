@@ -21,6 +21,9 @@ export class Asset extends BaseEntity {
   @Column({ default: null })
   purchase_cost: number;
 
+  @Column({ default: null })
+  userId: number;
+
   @ManyToOne(() => AssetModel, (assetModel) => assetModel.assets)
   assetModel: AssetModel;
 

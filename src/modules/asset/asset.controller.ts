@@ -32,7 +32,7 @@ export class AssetController {
   @Get('get-asset-by-id')
   @UseGuards(JwtAdminAuthGuard)
   async getAssetById(@Body('id', ParseIntPipe) id: number) {
-    return await this.assetService.getAssetById(id);
+    return await this.assetService.getAssetByAssetId(id);
   }
 
   @Post('create-asset')
@@ -55,6 +55,35 @@ export class AssetController {
   async deleteAsset(@Body('id', ParseIntPipe) id: number) {
     return await this.assetService.deleteAsset(id);
   }
+
+  @Get('all-request-assets')
+  @UseGuards(JwtAdminAuthGuard)
+  async getAllRequestAssets() {
+    return await this.assetService.getAllRequestAssets();
+  }
+
+  @Post('accept-request')
+  @UseGuards(JwtAdminAuthGuard)
+  async acceptRequest(
+    @Body('id', ParseIntPipe) id: number,
+    @Body('assetId', ParseIntPipe) assetId: number,
+  ) {
+    return await this.assetService.acceptRequest(id, assetId);
+  }
+
+  @Post('reject-request')
+  @UseGuards(JwtAdminAuthGuard)
+  async rejectRequest(@Body('id', ParseIntPipe) id: number) {
+    return await this.assetService.rejectRequest(id);
+  }
+
+  @Get('asset-by-model')
+  @UseGuards(JwtAdminAuthGuard)
+  async getAssetsByModel(@Query('assetModelId') assetModelId: number) {
+    return await this.assetService.getAssetsByModel(assetModelId);
+  }
+
+  /*------------------------ user ------------------------- */
 
   @Get('asset-to-user')
   @UseGuards(JwtAuthGuard)

@@ -12,11 +12,13 @@ import { RequestAsset } from 'src/models/entities/requestAssest.entity';
 import { AssetRepository } from 'src/models/repositories/asset.repository';
 import { AssetToUserRepository } from 'src/models/repositories/assetToUser.repository';
 import { RequestAssetRepository } from 'src/models/repositories/requestAsset.repository';
+import { IsNull } from 'typeorm';
 import { AssetModelService } from '../assetModel/assetModel.service';
 import { DepartmentService } from '../department/department.service';
 import { StatusService } from '../status/status.service';
 import { SupplierService } from '../supplier/supplier.service';
 import { UsersService } from '../users/users.service';
+import { RequestAssetStatus } from './asset.constants';
 import { AssetDto } from './dtos/asset.dto';
 import { AssetQueryDto } from './dtos/assetQuery.dto';
 
@@ -66,7 +68,7 @@ export class AssetService {
     return res;
   }
 
-  async getAssetById(id: number) {
+  async getAssetByAssetId(id: number) {
     const asset: Asset = await this.assetRepo.findOne({
       where: { id },
       relations: {
@@ -135,6 +137,76 @@ export class AssetService {
   async deleteAsset(id: number) {
     return await this.assetRepo.delete({ id });
   }
+
+  async getAssetById(id: number) {
+    const asset: Asset = await this.assetRepo.findOneBy({ id });
+    return asset;
+  }
+
+  async getAssetsByModel(assetModelId: number) {
+    const asset: Asset[] = await this.assetRepo.find({
+      where: { assetModel: { id: assetModelId }, userId: IsNull() },
+    });
+    return asset;
+  }
+
+  async getAllRequestAssets() {
+    const requestAsset = await this.requestAssetRepo.find({
+      relations: { assetModel: true, user: true },
+    });
+    const res = requestAsset.map((r: RequestAsset) => {
+      const { assetModel, user, ...rest } = r;
+      return {
+        ...rest,
+        assetModel: assetModel.name,
+        name: user.name,
+        username: user.username,
+      };
+    });
+    return res;
+  }
+
+  async acceptRequest(id: number, assetId: number) {
+    const request = await this.requestAssetRepo.findOne({
+      where: { id },
+      relations: { user: true },
+    });
+    if (request.status !== RequestAssetStatus.REQUESTED)
+      throw new HttpException(
+        'This request was accepted/rejected',
+        HttpStatus.BAD_REQUEST,
+      );
+    if (
+      await this.assetToUserRepo.findOne({ where: { asset: { id: assetId } } })
+    )
+      throw new HttpException('This asset is in use', HttpStatus.BAD_REQUEST);
+    request.status = RequestAssetStatus.ACCEPTED;
+    request.assetId = assetId;
+    await this.requestAssetRepo.save(request);
+    const assetToUser = new AssetToUser();
+    const user = await this.userService.getUserById(request.user.id);
+    const asset = await this.getAssetById(assetId);
+    assetToUser.user = user;
+    assetToUser.asset = asset;
+    asset.userId = request.user.id;
+    await this.assetRepo.save(asset);
+    await this.assetToUserRepo.save(assetToUser);
+    return request;
+  }
+
+  async rejectRequest(id: number) {
+    const request = await this.requestAssetRepo.findOneBy({ id });
+    if (request.status !== RequestAssetStatus.REQUESTED)
+      throw new HttpException(
+        'This request was accepted/rejected',
+        HttpStatus.BAD_REQUEST,
+      );
+    request.status = RequestAssetStatus.REJECTED;
+    await this.requestAssetRepo.save(request);
+    return request;
+  }
+
+  /*------------------------ user ------------------------- */
 
   async getAssetToUser(userId: number) {
     const assetToUsers = await this.assetToUserRepo.find({

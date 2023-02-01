@@ -4,6 +4,7 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  CreateDateColumn,
 } from 'typeorm';
 import Asset from './asset.entity';
 import UserEntity from './user.enitity';
@@ -12,6 +13,9 @@ import UserEntity from './user.enitity';
 export class AssetToUser {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @CreateDateColumn()
+  date: Date;
 
   @ManyToOne(() => UserEntity, (userEntity) => userEntity.assetToUsers)
   user: UserEntity;
