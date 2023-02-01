@@ -22,6 +22,12 @@ export class Asset extends BaseEntity {
   purchase_cost: number;
 
   @Column({ default: null })
+  current_cost: number;
+
+  @Column({ default: null })
+  purchase_date: Date;
+
+  @Column({ default: null })
   userId: number;
 
   @ManyToOne(() => AssetModel, (assetModel) => assetModel.assets)

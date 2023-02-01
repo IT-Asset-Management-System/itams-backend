@@ -14,6 +14,7 @@ import { DepartmentModule } from './modules/department/department.module';
 import { LicenseModule } from './modules/license/license.module';
 import { SourceCodeModule } from './modules/sourceCode/sourceCode.module';
 import { DigitalContentModule } from './modules/digitalContent/digitalContent.module';
+import { DeprecationModule } from './modules/deprecation/deprecation.module';
 
 export const Modules = [
   ConfigModule.forRoot({}),
@@ -46,4 +47,5 @@ export const Modules = [
   LicenseModule,
   SourceCodeModule,
   DigitalContentModule,
+  DeprecationModule,
 ];
