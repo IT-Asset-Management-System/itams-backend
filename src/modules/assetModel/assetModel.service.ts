@@ -72,4 +72,13 @@ export class AssetModelService {
   async deleteAssetModel(id: number) {
     return await this.assetModelRepo.delete({ id });
   }
+
+  /*------------------------ cron ------------------------- */
+  async getAllAssetModelsByCategory(categoryId: number) {
+    const assetModels: AssetModel[] = await this.assetModelRepo.find({
+      where: { category: { id: categoryId } },
+      relations: { assets: true, category: true, manufacturer: true },
+    });
+    return assetModels;
+  }
 }

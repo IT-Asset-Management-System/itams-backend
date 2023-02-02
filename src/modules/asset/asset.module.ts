@@ -9,6 +9,7 @@ import { RequestAssetRepository } from 'src/models/repositories/requestAsset.rep
 import { AssetModelModule } from '../assetModel/assetModel.module';
 import { CategoryModule } from '../category/category.module';
 import { DepartmentModule } from '../department/department.module';
+import { DeprecationModule } from '../deprecation/deprecation.module';
 import { ManufacturerModule } from '../manufacturer/manufacturer.module';
 import { StatusModule } from '../status/status.module';
 import { SupplierModule } from '../supplier/supplier.module';
@@ -24,6 +25,8 @@ import { AssetService } from './asset.service';
     DepartmentModule,
     StatusModule,
     SupplierModule,
+    CategoryModule,
+    DeprecationModule,
   ],
   controllers: [AssetController],
   providers: [

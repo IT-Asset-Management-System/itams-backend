@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as dayjs from 'dayjs';
+import { Cron, Interval, Timeout } from '@nestjs/schedule';
 import License from 'src/models/entities/license.entity';
 import { LicenseRepository } from 'src/models/repositories/license.repository';
 import { CategoryService } from '../category/category.service';
@@ -102,5 +104,22 @@ export class LicenseService {
 
   async deleteLicense(id: number) {
     return await this.licenseRepo.delete({ id });
+  }
+
+  /*------------------------ cron ------------------------- */
+
+  // At 00:00 everyday
+  @Cron('0 0 * * *')
+  // @Timeout(10000)
+  async handleCronLicenseExpiration() {
+    const licenses: License[] = await this.licenseRepo.find({});
+    await Promise.all(
+      licenses.map(async (license: License) => {
+        const expiration_date = license.expiration_date;
+        const date1 = dayjs(expiration_date);
+        const date2 = dayjs();
+        let diff = date1.diff(date2, 'day');
+      }),
+    );
   }
 }

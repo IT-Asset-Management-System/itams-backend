@@ -65,4 +65,12 @@ export class DeprecationService {
   async deleteDeprecation(id: number) {
     return await this.deprecationRepo.delete({ id });
   }
+
+  /*------------------------ cron ------------------------- */
+  async getAllDeprecationsForCron() {
+    const deprecations = await this.deprecationRepo.find({
+      relations: { category: true },
+    });
+    return deprecations;
+  }
 }

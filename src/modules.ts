@@ -15,6 +15,7 @@ import { LicenseModule } from './modules/license/license.module';
 import { SourceCodeModule } from './modules/sourceCode/sourceCode.module';
 import { DigitalContentModule } from './modules/digitalContent/digitalContent.module';
 import { DeprecationModule } from './modules/deprecation/deprecation.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 export const Modules = [
   ConfigModule.forRoot({}),
@@ -34,6 +35,7 @@ export const Modules = [
       port: parseInt(process.env.REDIS_PORT),
     },
   }),
+  ScheduleModule.forRoot(),
   AuthModule,
   UsersModule,
   AdminModule,

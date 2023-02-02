@@ -1,20 +1,21 @@
-import {
-  Body,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as dayjs from 'dayjs';
 import Asset from 'src/models/entities/asset.entity';
+import AssetModel from 'src/models/entities/assetModel.entity';
 import AssetToUser from 'src/models/entities/assetToUser.entity';
+import { Category } from 'src/models/entities/category.entity';
+import Deprecation from 'src/models/entities/deprecation.entity';
 import { RequestAsset } from 'src/models/entities/requestAssest.entity';
 import { AssetRepository } from 'src/models/repositories/asset.repository';
 import { AssetToUserRepository } from 'src/models/repositories/assetToUser.repository';
 import { RequestAssetRepository } from 'src/models/repositories/requestAsset.repository';
 import { IsNull } from 'typeorm';
 import { AssetModelService } from '../assetModel/assetModel.service';
+import { CategoryService } from '../category/category.service';
 import { DepartmentService } from '../department/department.service';
+import { DeprecationService } from '../deprecation/deprecation.service';
 import { StatusService } from '../status/status.service';
 import { SupplierService } from '../supplier/supplier.service';
 import { UsersService } from '../users/users.service';
@@ -38,6 +39,8 @@ export class AssetService {
     private departmentService: DepartmentService,
     private statusService: StatusService,
     private supplierService: SupplierService,
+    private categoryService: CategoryService,
+    private deprecationService: DeprecationService,
   ) {}
 
   async getAll(assetQuery?: AssetQueryDto) {
@@ -204,6 +207,40 @@ export class AssetService {
     request.status = RequestAssetStatus.REJECTED;
     await this.requestAssetRepo.save(request);
     return request;
+  }
+
+  /*------------------------ cron ------------------------- */
+
+  // At 00:00 every Sunday
+  @Cron('0 0 * * 0')
+  async handleCronAssetDeprecation() {
+    const deprecations: Deprecation[] =
+      await this.deprecationService.getAllDeprecationsForCron();
+    await Promise.all(
+      deprecations.map(async (deprecation: Deprecation) => {
+        const category: Category = deprecation.category;
+        const assetModels: AssetModel[] =
+          await this.assetModelService.getAllAssetModelsByCategory(category.id);
+        await Promise.all(
+          assetModels.map(async (assetModel: AssetModel) => {
+            const assets: Asset[] = assetModel.assets;
+            await Promise.all(
+              assets.map(async (asset: Asset) => {
+                const months = deprecation.months;
+                const purchase_date = asset.purchase_date;
+                const date1 = dayjs(purchase_date);
+                const date2 = dayjs();
+                let diff = date2.diff(date1, 'month');
+                asset.current_cost = Math.round(
+                  (asset.purchase_cost / months) * (months - diff),
+                );
+                await this.assetRepo.save(asset);
+              }),
+            );
+          }),
+        );
+      }),
+    );
   }
 
   /*------------------------ user ------------------------- */
