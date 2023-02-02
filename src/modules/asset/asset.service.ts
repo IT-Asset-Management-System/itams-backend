@@ -1,4 +1,11 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
@@ -16,6 +23,8 @@ import { AssetModelService } from '../assetModel/assetModel.service';
 import { CategoryService } from '../category/category.service';
 import { DepartmentService } from '../department/department.service';
 import { DeprecationService } from '../deprecation/deprecation.service';
+import { NotificationType } from '../notification/notification.constants';
+import { NotificationService } from '../notification/notification.service';
 import { StatusService } from '../status/status.service';
 import { SupplierService } from '../supplier/supplier.service';
 import { UsersService } from '../users/users.service';
@@ -41,6 +50,8 @@ export class AssetService {
     private supplierService: SupplierService,
     private categoryService: CategoryService,
     private deprecationService: DeprecationService,
+    @Inject(forwardRef(() => NotificationService))
+    private notificationService: NotificationService,
   ) {}
 
   async getAll(assetQuery?: AssetQueryDto) {
@@ -230,11 +241,25 @@ export class AssetService {
                 const purchase_date = asset.purchase_date;
                 const date1 = dayjs(purchase_date);
                 const date2 = dayjs();
-                let diff = date2.diff(date1, 'month');
+                let diffMonth = date2.diff(date1, 'month');
                 asset.current_cost = Math.round(
-                  (asset.purchase_cost / months) * (months - diff),
+                  (asset.purchase_cost / months) * (months - diffMonth),
                 );
                 await this.assetRepo.save(asset);
+
+                let diffDay = date2.diff(date1, 'day');
+                let expiration_date = date1.add(months, 'month').toDate();
+                await this.notificationService.deleteNotification(
+                  NotificationType.ASSET,
+                  asset.id,
+                );
+                if (diffDay <= 3000) {
+                  await this.notificationService.createNewNotification({
+                    itemId: asset.id,
+                    expiration_date: expiration_date,
+                    type: NotificationType.ASSET,
+                  });
+                }
               }),
             );
           }),

@@ -28,7 +28,7 @@ export class LicenseController {
   @Get('get-license-by-id')
   @UseGuards(JwtAdminAuthGuard)
   async getLicenseById(@Body('id', ParseIntPipe) id: number) {
-    return await this.licenseService.getLicenseById(id);
+    return await this.licenseService.getLicenseByLicenseId(id);
   }
 
   @Post('create-license')

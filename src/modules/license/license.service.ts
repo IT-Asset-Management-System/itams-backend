@@ -1,13 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
-import { Cron, Interval, Timeout } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import License from 'src/models/entities/license.entity';
 import { LicenseRepository } from 'src/models/repositories/license.repository';
 import { CategoryService } from '../category/category.service';
 import { ManufacturerService } from '../manufacturer/manufacturer.service';
 import { SupplierService } from '../supplier/supplier.service';
 import { LicenseDto } from './dtos/license.dto';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType } from '../notification/notification.constants';
 
 @Injectable()
 export class LicenseService {
@@ -19,6 +21,8 @@ export class LicenseService {
     private categoryService: CategoryService,
     private manufacturerService: ManufacturerService,
     private supplierService: SupplierService,
+    @Inject(forwardRef(() => NotificationService))
+    private notificationService: NotificationService,
   ) {}
 
   async getAll() {
@@ -41,7 +45,7 @@ export class LicenseService {
     return res;
   }
 
-  async getLicenseById(id: number) {
+  async getLicenseByLicenseId(id: number) {
     const license: License = await this.licenseRepo.findOne({
       where: { id },
       relations: {
@@ -106,19 +110,34 @@ export class LicenseService {
     return await this.licenseRepo.delete({ id });
   }
 
+  async getLicenseById(id: number) {
+    const license: License = await this.licenseRepo.findOneBy({ id });
+    return license;
+  }
+
   /*------------------------ cron ------------------------- */
 
   // At 00:00 everyday
   @Cron('0 0 * * *')
-  // @Timeout(10000)
   async handleCronLicenseExpiration() {
-    const licenses: License[] = await this.licenseRepo.find({});
+    const licenses: License[] = await this.licenseRepo.find();
     await Promise.all(
       licenses.map(async (license: License) => {
         const expiration_date = license.expiration_date;
         const date1 = dayjs(expiration_date);
         const date2 = dayjs();
         let diff = date1.diff(date2, 'day');
+        await this.notificationService.deleteNotification(
+          NotificationType.LICENSE,
+          license.id,
+        );
+        if (diff <= 1000) {
+          await this.notificationService.createNewNotification({
+            itemId: license.id,
+            expiration_date: license.expiration_date,
+            type: NotificationType.LICENSE,
+          });
+        }
       }),
     );
   }

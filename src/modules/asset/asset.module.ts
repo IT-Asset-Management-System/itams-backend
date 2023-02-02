@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import Asset from 'src/models/entities/asset.entity';
 import AssetToUser from 'src/models/entities/assetToUser.entity';
@@ -11,6 +11,7 @@ import { CategoryModule } from '../category/category.module';
 import { DepartmentModule } from '../department/department.module';
 import { DeprecationModule } from '../deprecation/deprecation.module';
 import { ManufacturerModule } from '../manufacturer/manufacturer.module';
+import { NotificationModule } from '../notification/notification.module';
 import { StatusModule } from '../status/status.module';
 import { SupplierModule } from '../supplier/supplier.module';
 import { UsersModule } from '../users/users.module';
@@ -27,6 +28,7 @@ import { AssetService } from './asset.service';
     SupplierModule,
     CategoryModule,
     DeprecationModule,
+    forwardRef(() => NotificationModule),
   ],
   controllers: [AssetController],
   providers: [

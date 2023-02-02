@@ -16,6 +16,7 @@ import { SourceCodeModule } from './modules/sourceCode/sourceCode.module';
 import { DigitalContentModule } from './modules/digitalContent/digitalContent.module';
 import { DeprecationModule } from './modules/deprecation/deprecation.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { NotificationModule } from './modules/notification/notification.module';
 
 export const Modules = [
   ConfigModule.forRoot({}),
@@ -50,4 +51,5 @@ export const Modules = [
   SourceCodeModule,
   DigitalContentModule,
   DeprecationModule,
+  NotificationModule,
 ];
