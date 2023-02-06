@@ -21,7 +21,9 @@ export class NotificationService {
   ) {}
 
   async getAllNotifications() {
-    const notifications = await this.notificationRepo.find({order: {expiration_date: 'ASC'}});
+    const notifications = await this.notificationRepo.find({
+      order: { expiration_date: 'ASC' },
+    });
     const res = Promise.all(
       notifications.map(async (notification) => {
         const asset = await this.assetService.getAssetById(notification.itemId);

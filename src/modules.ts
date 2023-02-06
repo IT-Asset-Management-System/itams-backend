@@ -17,6 +17,7 @@ import { DigitalContentModule } from './modules/digitalContent/digitalContent.mo
 import { DeprecationModule } from './modules/deprecation/deprecation.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationModule } from './modules/notification/notification.module';
+import { AssetMaintenanceModule } from './modules/assetMaintenance/assetMaintenance.module';
 
 export const Modules = [
   ConfigModule.forRoot({}),
@@ -41,6 +42,7 @@ export const Modules = [
   UsersModule,
   AdminModule,
   AssetModule,
+  AssetMaintenanceModule,
   CategoryModule,
   ManufacturerModule,
   SupplierModule,

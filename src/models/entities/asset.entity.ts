@@ -3,8 +3,10 @@ import {
   Column,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { AssetMaintenance } from './assetMaintenance.entity';
 import AssetModel from './assetModel.entity';
 import Department from './department.entity';
 import Status from './status.entity';
@@ -29,6 +31,12 @@ export class Asset extends BaseEntity {
 
   @Column({ default: null })
   userId: number;
+
+  @OneToMany(
+    () => AssetMaintenance,
+    (assetMaintenance) => assetMaintenance.asset,
+  )
+  assetMaintenances: AssetMaintenance[];
 
   @ManyToOne(() => AssetModel, (assetModel) => assetModel.assets)
   assetModel: AssetModel;
