@@ -13,6 +13,10 @@ export class AssetDto {
 
   @ApiProperty({ required: true })
   @IsNotEmpty()
+  purchase_date: Date;
+
+  @ApiProperty({ required: true })
+  @IsNotEmpty()
   assetModelId: number;
 
   @ApiProperty({ required: true })

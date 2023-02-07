@@ -41,6 +41,12 @@ export class AssetController {
     return await this.assetService.createNewAsset(assetDto);
   }
 
+  @Post('import-asset')
+  @UseGuards(JwtAdminAuthGuard)
+  async importAsset(@Body() assetDto: AssetDto[]) {
+    return await this.assetService.importAsset(assetDto);
+  }
+
   @Put('update-asset')
   @UseGuards(JwtAdminAuthGuard)
   async updateAsset(

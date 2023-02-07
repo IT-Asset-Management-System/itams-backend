@@ -18,7 +18,7 @@ import { RequestAsset } from 'src/models/entities/requestAssest.entity';
 import { AssetRepository } from 'src/models/repositories/asset.repository';
 import { AssetToUserRepository } from 'src/models/repositories/assetToUser.repository';
 import { RequestAssetRepository } from 'src/models/repositories/requestAsset.repository';
-import { IsNull } from 'typeorm';
+import { DataSource, IsNull } from 'typeorm';
 import { AssetModelService } from '../assetModel/assetModel.service';
 import { CategoryService } from '../category/category.service';
 import { DepartmentService } from '../department/department.service';
@@ -37,6 +37,7 @@ export class AssetService {
   private logger = new Logger(AssetService.name);
 
   constructor(
+    private dataSource: DataSource,
     @InjectRepository(Asset)
     private assetRepo: AssetRepository,
     @InjectRepository(AssetToUser)
@@ -116,6 +117,7 @@ export class AssetService {
 
     const asset = new Asset();
     asset.name = assetDto.name;
+    asset.purchase_date = dayjs(assetDto.purchase_date).toDate();
     asset.purchase_cost = assetDto.purchase_cost;
     asset.assetModel = assetModel;
     asset.department = department;
@@ -124,6 +126,39 @@ export class AssetService {
 
     await this.assetRepo.save(asset);
     return asset;
+  }
+
+  async importAsset(assetDtos: AssetDto[]) {
+    await this.dataSource.transaction(async (manager) => {
+      await Promise.all(
+        assetDtos.map(async (assetDto: AssetDto) => {
+          const assetModel = await this.assetModelService.getAssetModelById(
+            assetDto.assetModelId,
+          );
+          const department = await this.departmentService.getDepartmentById(
+            assetDto.departmentId,
+          );
+          const status = await this.statusService.getStatusById(
+            assetDto.statusId,
+          );
+          const supplier = await this.supplierService.getSupplierById(
+            assetDto.supplierId,
+          );
+
+          const asset = new Asset();
+          asset.name = assetDto.name;
+          asset.purchase_date = dayjs(assetDto.purchase_date).toDate();
+          asset.purchase_cost = assetDto.purchase_cost;
+          asset.assetModel = assetModel;
+          asset.department = department;
+          asset.status = status;
+          asset.supplier = supplier;
+
+          await manager.save(asset);
+        }),
+      );
+    });
+    return assetDtos;
   }
 
   async updateAsset(id: number, assetDto: AssetDto) {
