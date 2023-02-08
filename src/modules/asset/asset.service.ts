@@ -18,7 +18,7 @@ import { RequestAsset } from 'src/models/entities/requestAssest.entity';
 import { AssetRepository } from 'src/models/repositories/asset.repository';
 import { AssetToUserRepository } from 'src/models/repositories/assetToUser.repository';
 import { RequestAssetRepository } from 'src/models/repositories/requestAsset.repository';
-import { DataSource, IsNull } from 'typeorm';
+import { DataSource, In, IsNull, Not } from 'typeorm';
 import { AssetModelService } from '../assetModel/assetModel.service';
 import { CategoryService } from '../category/category.service';
 import { DepartmentService } from '../department/department.service';
@@ -31,6 +31,8 @@ import { UsersService } from '../users/users.service';
 import { RequestAssetStatus } from './asset.constants';
 import { AssetDto } from './dtos/asset.dto';
 import { AssetQueryDto } from './dtos/assetQuery.dto';
+import { CheckinAssetDto } from './dtos/checkinAsset.dto';
+import { CheckoutAssetDto } from './dtos/checkoutAsset.dto';
 
 @Injectable()
 export class AssetService {
@@ -62,6 +64,7 @@ export class AssetService {
         department: true,
         status: true,
         supplier: true,
+        assetToUser: true,
       },
       where: {
         assetModel: { id: assetQuery.assetModelId },
@@ -71,13 +74,15 @@ export class AssetService {
       },
     });
     const res = assets.map((asset) => {
-      const { assetModel, department, status, supplier, ...rest } = asset;
+      const { assetModel, department, status, supplier, assetToUser, ...rest } =
+        asset;
       return {
         ...rest,
         assetModel: asset?.assetModel?.name,
         department: asset?.department?.name,
         status: asset?.status?.name,
         supplier: asset?.supplier?.name,
+        user: asset?.assetToUser ? true : false,
       };
     });
     return res;
@@ -184,7 +189,40 @@ export class AssetService {
   }
 
   async deleteAsset(id: number) {
-    return await this.assetRepo.delete({ id });
+    try {
+      return await this.assetRepo.delete({ id });
+    } catch (err) {
+      throw new HttpException('Cannot delete', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async checkoutAsset(checkoutAssetDto: CheckoutAssetDto) {
+    const asset = await this.assetRepo.findOne({
+      where: { id: checkoutAssetDto.assetId },
+    });
+    const user = await this.userService.getUserById(checkoutAssetDto.userId);
+    const assetToUser = new AssetToUser();
+    assetToUser.asset = asset;
+    assetToUser.user = user;
+    // assetToUser.checkout_date = checkoutAssetDto.checkout_date;
+    await this.assetToUserRepo.save(assetToUser);
+    return assetToUser;
+  }
+
+  async checkinAsset(checkinAssetDto: CheckinAssetDto) {
+    const asset = await this.assetRepo.findOne({
+      where: { id: checkinAssetDto.assetId },
+    });
+    const department = await this.departmentService.getDepartmentById(
+      checkinAssetDto.departmentId,
+    );
+    const assetToUser = await this.assetToUserRepo.delete({
+      asset: { id: checkinAssetDto.assetId },
+    });
+    asset.department = department;
+    // assetToUser.checkin_date = checkinAssetDto.checkin_date;
+    await this.assetRepo.save(asset);
+    return assetToUser;
   }
 
   async getAssetById(id: number) {
@@ -193,10 +231,11 @@ export class AssetService {
   }
 
   async getAssetsByModel(assetModelId: number) {
-    const asset: Asset[] = await this.assetRepo.find({
-      where: { assetModel: { id: assetModelId }, userId: IsNull() },
+    const assets: Asset[] = await this.assetRepo.find({
+      relations: { assetToUser: true },
+      where: { assetModel: { id: assetModelId } },
     });
-    return asset;
+    return assets.filter((asset: Asset) => asset.assetToUser === null);
   }
 
   async getAllRequestAssets() {
@@ -237,8 +276,6 @@ export class AssetService {
     const asset = await this.getAssetById(assetId);
     assetToUser.user = user;
     assetToUser.asset = asset;
-    asset.userId = request.user.id;
-    await this.assetRepo.save(asset);
     await this.assetToUserRepo.save(assetToUser);
     return request;
   }

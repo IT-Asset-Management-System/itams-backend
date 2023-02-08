@@ -4,10 +4,12 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AssetMaintenance } from './assetMaintenance.entity';
 import AssetModel from './assetModel.entity';
+import AssetToUser from './assetToUser.entity';
 import Department from './department.entity';
 import Status from './status.entity';
 import Supplier from './supplier.entity';
@@ -29,8 +31,8 @@ export class Asset extends BaseEntity {
   @Column({ default: null })
   purchase_date: Date;
 
-  @Column({ default: null })
-  userId: number;
+  @OneToOne(() => AssetToUser, (assetToUser) => assetToUser.asset)
+  assetToUser: AssetToUser;
 
   @OneToMany(
     () => AssetMaintenance,

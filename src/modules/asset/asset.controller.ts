@@ -16,6 +16,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AssetService } from './asset.service';
 import { AssetDto } from './dtos/asset.dto';
 import { AssetQueryDto } from './dtos/assetQuery.dto';
+import { CheckinAssetDto } from './dtos/checkinAsset.dto';
+import { CheckoutAssetDto } from './dtos/checkoutAsset.dto';
 import { NewRequestAsset } from './dtos/new-request-asset.dto';
 
 @ApiTags('asset')
@@ -60,6 +62,18 @@ export class AssetController {
   @UseGuards(JwtAdminAuthGuard)
   async deleteAsset(@Body('id', ParseIntPipe) id: number) {
     return await this.assetService.deleteAsset(id);
+  }
+
+  @Post('checkout-asset')
+  @UseGuards(JwtAdminAuthGuard)
+  async checkoutAsset(@Body() checkoutAssetDto: CheckoutAssetDto) {
+    return await this.assetService.checkoutAsset(checkoutAssetDto);
+  }
+
+  @Post('checkin-asset')
+  @UseGuards(JwtAdminAuthGuard)
+  async checkinAsset(@Body() checkinAssetDto: CheckinAssetDto) {
+    return await this.assetService.checkinAsset(checkinAssetDto);
   }
 
   @Get('all-request-assets')
