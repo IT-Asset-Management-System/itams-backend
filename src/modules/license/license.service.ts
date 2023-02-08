@@ -84,6 +84,7 @@ export class LicenseService {
     license.supplier = supplier;
 
     await this.licenseRepo.save(license);
+    await this.handleCronLicenseExpiration();
     return license;
   }
 
@@ -103,11 +104,18 @@ export class LicenseService {
     updated.category = category;
     updated.manufacturer = manufacturer;
     updated.supplier = supplier;
-    return await this.licenseRepo.save(updated);
+    await this.licenseRepo.save(updated);
+    await this.handleCronLicenseExpiration();
+    return updated;
   }
 
   async deleteLicense(id: number) {
-    return await this.licenseRepo.delete({ id });
+    const deleted = await this.licenseRepo.delete({ id });
+    await this.notificationService.deleteNotification(
+      NotificationType.LICENSE,
+      id,
+    );
+    return deleted;
   }
 
   async getLicenseById(id: number) {
@@ -131,7 +139,7 @@ export class LicenseService {
           NotificationType.LICENSE,
           license.id,
         );
-        if (diff <= 1000) {
+        if (diff <= 30) {
           await this.notificationService.createNewNotification({
             itemId: license.id,
             expiration_date: license.expiration_date,

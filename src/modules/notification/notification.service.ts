@@ -32,7 +32,10 @@ export class NotificationService {
         );
         return {
           ...notification,
-          name: asset?.name ?? license?.name,
+          name:
+            notification.type === NotificationType.ASSET
+              ? asset?.name
+              : license?.name,
         };
       }),
     );

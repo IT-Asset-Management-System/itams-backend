@@ -64,7 +64,7 @@ export class AssetService {
         department: true,
         status: true,
         supplier: true,
-        assetToUsers: true
+        assetToUsers: true,
       },
       where: {
         assetModel: { id: assetQuery.assetModelId },
@@ -74,8 +74,14 @@ export class AssetService {
       },
     });
     const res = assets.map((asset) => {
-      const { assetModel, department, status, supplier, assetToUsers, ...rest } =
-        asset;
+      const {
+        assetModel,
+        department,
+        status,
+        supplier,
+        assetToUsers,
+        ...rest
+      } = asset;
       return {
         ...rest,
         assetModel: asset?.assetModel?.name,
@@ -187,12 +193,19 @@ export class AssetService {
     updated.department = department;
     updated.status = status;
     updated.supplier = supplier;
-    return await this.assetRepo.save(updated);
+    await this.assetRepo.save(updated);
+    await this.handleCronAssetDeprecation();
+    return updated;
   }
 
   async deleteAsset(id: number) {
     try {
-      return await this.assetRepo.delete({ id });
+      const deleted = await this.assetRepo.delete({ id });
+      await this.notificationService.deleteNotification(
+        NotificationType.LICENSE,
+        id,
+      );
+      return deleted;
     } catch (err) {
       throw new HttpException('Cannot delete', HttpStatus.BAD_REQUEST);
     }
@@ -227,7 +240,7 @@ export class AssetService {
     await this.assetToUserRepo.save(assetToUser);
     await this.assetToUserRepo.softDelete({
       asset: { id: checkinAssetDto.assetId },
-    })
+    });
     return assetToUser;
   }
 
@@ -320,18 +333,21 @@ export class AssetService {
                 const date1 = dayjs(purchase_date);
                 const date2 = dayjs();
                 let diffMonth = date2.diff(date1, 'month');
-                asset.current_cost = Math.round(
-                  (asset.purchase_cost / months) * (months - diffMonth),
+                asset.current_cost = Math.max(
+                  Math.round(
+                    (asset.purchase_cost / months) * (months - diffMonth),
+                  ),
+                  0,
                 );
                 await this.assetRepo.save(asset);
 
-                let diffDay = date2.diff(date1, 'day');
                 let expiration_date = date1.add(months, 'month').toDate();
+                let diffDay = dayjs(expiration_date).diff(date2, 'day');
                 await this.notificationService.deleteNotification(
                   NotificationType.ASSET,
                   asset.id,
                 );
-                if (diffDay <= 3000) {
+                if (diffDay <= 30) {
                   await this.notificationService.createNewNotification({
                     itemId: asset.id,
                     expiration_date: expiration_date,
