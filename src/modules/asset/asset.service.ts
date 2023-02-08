@@ -28,7 +28,7 @@ import { NotificationService } from '../notification/notification.service';
 import { StatusService } from '../status/status.service';
 import { SupplierService } from '../supplier/supplier.service';
 import { UsersService } from '../users/users.service';
-import { RequestAssetStatus } from './asset.constants';
+import { CheckType, RequestAssetStatus } from './asset.constants';
 import { AssetDto } from './dtos/asset.dto';
 import { AssetQueryDto } from './dtos/assetQuery.dto';
 import { CheckinAssetDto } from './dtos/checkinAsset.dto';
@@ -73,25 +73,33 @@ export class AssetService {
         supplier: { id: assetQuery.supplierId },
       },
     });
-    const res = assets.map((asset) => {
-      const {
-        assetModel,
-        department,
-        status,
-        supplier,
-        assetToUsers,
-        ...rest
-      } = asset;
-      return {
-        ...rest,
-        assetModel: asset?.assetModel?.name,
-        department: asset?.department?.name,
-        status: asset?.status?.name,
-        supplier: asset?.supplier?.name,
-        user: asset?.assetToUsers.length > 0 ? true : false,
-      };
-    });
-    return res;
+    return Promise.all(
+      assets.map(async (asset) => {
+        const {
+          assetModel,
+          department,
+          status,
+          supplier,
+          assetToUsers,
+          ...rest
+        } = asset;
+        const assetToUser = await this.assetToUserRepo.findOne({
+          relations: { user: true },
+          where: { asset: { id: asset.id } },
+        });
+        return {
+          ...rest,
+          assetModel: asset?.assetModel?.name,
+          department: asset?.department?.name,
+          status: asset?.status?.name,
+          supplier: asset?.supplier?.name,
+          user: assetToUser
+            ? await this.userService.getUserById(assetToUser?.user?.id)
+            : null,
+          check_type: assetToUser ? CheckType.CHECKIN : CheckType.CHECKOUT,
+        };
+      }),
+    );
   }
 
   async getAssetByAssetId(id: number) {

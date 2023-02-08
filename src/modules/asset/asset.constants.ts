@@ -3,3 +3,8 @@ export enum RequestAssetStatus {
   REJECTED = 'Rejected',
   ACCEPTED = 'Accepted',
 }
+
+export enum CheckType {
+  CHECKIN = 'checkin',
+  CHECKOUT = 'checkout',
+}
