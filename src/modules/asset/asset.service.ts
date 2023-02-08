@@ -130,6 +130,7 @@ export class AssetService {
     asset.supplier = supplier;
 
     await this.assetRepo.save(asset);
+    await this.handleCronAssetDeprecation();
     return asset;
   }
 
@@ -163,6 +164,7 @@ export class AssetService {
         }),
       );
     });
+    await this.handleCronAssetDeprecation();
     return assetDtos;
   }
 
