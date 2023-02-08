@@ -31,8 +31,8 @@ export class Asset extends BaseEntity {
   @Column({ default: null })
   purchase_date: Date;
 
-  @OneToOne(() => AssetToUser, (assetToUser) => assetToUser.asset)
-  assetToUser: AssetToUser;
+  @OneToMany(() => AssetToUser, (assetToUser) => assetToUser.asset)
+  assetToUsers: AssetToUser[];
 
   @OneToMany(
     () => AssetMaintenance,

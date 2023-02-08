@@ -64,7 +64,7 @@ export class AssetService {
         department: true,
         status: true,
         supplier: true,
-        assetToUser: true,
+        assetToUsers: true
       },
       where: {
         assetModel: { id: assetQuery.assetModelId },
@@ -74,7 +74,7 @@ export class AssetService {
       },
     });
     const res = assets.map((asset) => {
-      const { assetModel, department, status, supplier, assetToUser, ...rest } =
+      const { assetModel, department, status, supplier, assetToUsers, ...rest } =
         asset;
       return {
         ...rest,
@@ -82,7 +82,7 @@ export class AssetService {
         department: asset?.department?.name,
         status: asset?.status?.name,
         supplier: asset?.supplier?.name,
-        user: asset?.assetToUser ? true : false,
+        user: asset?.assetToUsers.length > 0 ? true : false,
       };
     });
     return res;
@@ -204,7 +204,7 @@ export class AssetService {
     const assetToUser = new AssetToUser();
     assetToUser.asset = asset;
     assetToUser.user = user;
-    // assetToUser.checkout_date = checkoutAssetDto.checkout_date;
+    assetToUser.checkout_date = checkoutAssetDto.checkout_date;
     await this.assetToUserRepo.save(assetToUser);
     return assetToUser;
   }
@@ -216,12 +216,16 @@ export class AssetService {
     const department = await this.departmentService.getDepartmentById(
       checkinAssetDto.departmentId,
     );
-    const assetToUser = await this.assetToUserRepo.delete({
+    const assetToUser = await this.assetToUserRepo.findOneBy({
       asset: { id: checkinAssetDto.assetId },
     });
     asset.department = department;
-    // assetToUser.checkin_date = checkinAssetDto.checkin_date;
+    assetToUser.checkin_date = checkinAssetDto.checkin_date;
     await this.assetRepo.save(asset);
+    await this.assetToUserRepo.save(assetToUser);
+    await this.assetToUserRepo.softDelete({
+      asset: { id: checkinAssetDto.assetId },
+    })
     return assetToUser;
   }
 
@@ -232,10 +236,10 @@ export class AssetService {
 
   async getAssetsByModel(assetModelId: number) {
     const assets: Asset[] = await this.assetRepo.find({
-      relations: { assetToUser: true },
+      relations: { assetToUsers: true },
       where: { assetModel: { id: assetModelId } },
     });
-    return assets.filter((asset: Asset) => asset.assetToUser === null);
+    return assets.filter((asset: Asset) => asset.assetToUsers.length === 0);
   }
 
   async getAllRequestAssets() {
