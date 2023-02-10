@@ -1,8 +1,30 @@
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bull';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { AssetModule } from './modules/asset/asset.module';
+import { CategoryModule } from './modules/category/category.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { ManufacturerModule } from './modules/manufacturer/manufacturer.module';
+import { SupplierModule } from './modules/supplier/supplier.module';
+import { StatusModule } from './modules/status/status.module';
+import { LocationModule } from './modules/location/location.module';
+import { DepartmentModule } from './modules/department/department.module';
+import { LicenseModule } from './modules/license/license.module';
+import { SourceCodeModule } from './modules/sourceCode/sourceCode.module';
+import { DigitalContentModule } from './modules/digitalContent/digitalContent.module';
+import { DeprecationModule } from './modules/deprecation/deprecation.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { NotificationModule } from './modules/notification/notification.module';
+import { AssetMaintenanceModule } from './modules/assetMaintenance/assetMaintenance.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { MailModule } from './modules/mail/mail.module';
 
 export const Modules = [
-  ConfigModule.forRoot({}),
+  ConfigModule.forRoot({
+    isGlobal: true,
+  }),
   TypeOrmModule.forRoot({
     type: 'mysql',
     host: process.env.MYSQL_HOST,
@@ -10,7 +32,32 @@ export const Modules = [
     username: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
-    entities: [__dirname + '/model/entities/**/*{.ts,.js}'],
+    entities: [__dirname + '/models/entities/**/*{.ts,.js}'],
     synchronize: true,
   }),
+  BullModule.forRoot({
+    redis: {
+      host: process.env.REDIS_HOST,
+      port: parseInt(process.env.REDIS_PORT),
+    },
+  }),
+  ScheduleModule.forRoot(),
+  AuthModule,
+  UsersModule,
+  AdminModule,
+  AssetModule,
+  AssetMaintenanceModule,
+  CategoryModule,
+  ManufacturerModule,
+  SupplierModule,
+  StatusModule,
+  LocationModule,
+  DepartmentModule,
+  LicenseModule,
+  SourceCodeModule,
+  DigitalContentModule,
+  DeprecationModule,
+  NotificationModule,
+  InventoryModule,
+  MailModule,
 ];
