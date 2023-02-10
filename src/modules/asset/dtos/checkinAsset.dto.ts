@@ -21,5 +21,5 @@ export class CheckinAssetDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  note: string;
+  checkin_note: string;
 }

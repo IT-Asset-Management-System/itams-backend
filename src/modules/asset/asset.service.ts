@@ -219,6 +219,8 @@ export class AssetService {
     }
   }
 
+  /*------------------------ checkin/checkout asset ------------------------- */
+
   async checkoutAsset(checkoutAssetDto: CheckoutAssetDto) {
     const asset = await this.assetRepo.findOne({
       where: { id: checkoutAssetDto.assetId },
@@ -228,6 +230,7 @@ export class AssetService {
     assetToUser.asset = asset;
     assetToUser.user = user;
     assetToUser.checkout_date = checkoutAssetDto.checkout_date;
+    assetToUser.checkout_note = checkoutAssetDto.checkout_note;
     await this.assetToUserRepo.save(assetToUser);
     return assetToUser;
   }
@@ -244,6 +247,7 @@ export class AssetService {
     });
     asset.department = department;
     assetToUser.checkin_date = checkinAssetDto.checkin_date;
+    assetToUser.checkin_note = checkinAssetDto.checkin_note;
     await this.assetRepo.save(asset);
     await this.assetToUserRepo.save(assetToUser);
     await this.assetToUserRepo.softDelete({
@@ -256,6 +260,26 @@ export class AssetService {
     const asset: Asset = await this.assetRepo.findOneBy({ id });
     return asset;
   }
+
+  /*------------------------ asset to inventory ------------------------- */
+
+  async getAssetsByDepartmentId(id: number) {
+    const assets: Asset[] = await this.assetRepo.find({
+      relations: { status: true },
+      where: { department: { id } },
+    });
+    return assets;
+  }
+
+  async saveAssetAfterInventory(id: number, statusId: number, newCost: number) {
+    const asset = await this.assetRepo.findOneBy({ id });
+    const status = await this.statusService.getStatusById(statusId);
+    asset.status = status;
+    asset.current_cost = newCost;
+    await this.assetRepo.save(asset);
+  }
+
+  /*------------------------ request asset ------------------------- */
 
   async getAssetsByModel(assetModelId: number) {
     const assets: Asset[] = await this.assetRepo.find({

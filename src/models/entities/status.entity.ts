@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import Asset from './asset.entity';
+import AssetToInventory from './assetToInventory.entity';
 
 @Entity()
 export class Status extends BaseEntity {
@@ -17,6 +18,12 @@ export class Status extends BaseEntity {
 
   @OneToMany(() => Asset, (asset) => asset.status)
   assets: Asset[];
+
+  @OneToMany(
+    () => AssetToInventory,
+    (assetToInventory) => assetToInventory.new_status,
+  )
+  assetToInventories: AssetToInventory[];
 }
 
 export default Status;

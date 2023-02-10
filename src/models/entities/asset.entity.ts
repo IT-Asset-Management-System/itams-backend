@@ -9,8 +9,10 @@ import {
 } from 'typeorm';
 import { AssetMaintenance } from './assetMaintenance.entity';
 import AssetModel from './assetModel.entity';
+import AssetToInventory from './assetToInventory.entity';
 import AssetToUser from './assetToUser.entity';
 import Department from './department.entity';
+import Inventory from './inventory.entity';
 import Status from './status.entity';
 import Supplier from './supplier.entity';
 
@@ -33,6 +35,12 @@ export class Asset extends BaseEntity {
 
   @OneToMany(() => AssetToUser, (assetToUser) => assetToUser.asset)
   assetToUsers: AssetToUser[];
+
+  @OneToMany(
+    () => AssetToInventory,
+    (assetToInventory) => assetToInventory.asset,
+  )
+  assetToInventories: AssetToInventory[];
 
   @OneToMany(
     () => AssetMaintenance,

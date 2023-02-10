@@ -21,5 +21,5 @@ export class CheckoutAssetDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  note: string;
+  checkout_note: string;
 }

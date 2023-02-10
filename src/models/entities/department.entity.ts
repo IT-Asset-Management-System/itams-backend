@@ -5,8 +5,10 @@ import {
   OneToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
+  ManyToMany,
 } from 'typeorm';
 import Asset from './asset.entity';
+import Inventory from './inventory.entity';
 import Location from './location.entity';
 import UserEntity from './user.enitity';
 
@@ -20,6 +22,9 @@ export class Department extends BaseEntity {
 
   @OneToMany(() => Asset, (asset) => asset.department)
   assets: Asset[];
+
+  @OneToMany(() => Inventory, (inventory) => inventory.department)
+  inventories: Inventory[];
 
   @OneToMany(() => UserEntity, (userEntity) => userEntity.department)
   users: UserEntity[];

@@ -19,7 +19,13 @@ export class AssetToUser {
   checkout_date: Date;
 
   @Column({ default: null })
+  checkout_note: string;
+
+  @Column({ default: null })
   checkin_date: Date;
+
+  @Column({ default: null })
+  checkin_note: string;
 
   @ManyToOne(() => UserEntity, (userEntity) => userEntity.assetToUsers)
   user: UserEntity;
