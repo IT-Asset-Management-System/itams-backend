@@ -19,9 +19,12 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationModule } from './modules/notification/notification.module';
 import { AssetMaintenanceModule } from './modules/assetMaintenance/assetMaintenance.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { MailModule } from './modules/mail/mail.module';
 
 export const Modules = [
-  ConfigModule.forRoot({}),
+  ConfigModule.forRoot({
+    isGlobal: true,
+  }),
   TypeOrmModule.forRoot({
     type: 'mysql',
     host: process.env.MYSQL_HOST,
@@ -56,4 +59,5 @@ export const Modules = [
   DeprecationModule,
   NotificationModule,
   InventoryModule,
+  MailModule,
 ];

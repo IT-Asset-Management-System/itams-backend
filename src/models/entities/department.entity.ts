@@ -10,7 +10,7 @@ import {
 import Asset from './asset.entity';
 import Inventory from './inventory.entity';
 import Location from './location.entity';
-import UserEntity from './user.enitity';
+import UserEntity from './user.entity';
 
 @Entity()
 export class Department extends BaseEntity {

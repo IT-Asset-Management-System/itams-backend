@@ -8,7 +8,7 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 import Asset from './asset.entity';
-import UserEntity from './user.enitity';
+import UserEntity from './user.entity';
 
 @Entity()
 export class AssetToUser {

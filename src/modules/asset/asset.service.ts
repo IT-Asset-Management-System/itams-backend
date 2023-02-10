@@ -23,6 +23,7 @@ import { AssetModelService } from '../assetModel/assetModel.service';
 import { CategoryService } from '../category/category.service';
 import { DepartmentService } from '../department/department.service';
 import { DeprecationService } from '../deprecation/deprecation.service';
+import { MailService } from '../mail/mail.service';
 import { NotificationType } from '../notification/notification.constants';
 import { NotificationService } from '../notification/notification.service';
 import { StatusService } from '../status/status.service';
@@ -56,6 +57,7 @@ export class AssetService {
     private deprecationService: DeprecationService,
     @Inject(forwardRef(() => NotificationService))
     private notificationService: NotificationService,
+    private mailService: MailService,
   ) {}
 
   async getAll(assetQuery?: AssetQueryDto) {
@@ -331,6 +333,7 @@ export class AssetService {
     assetToUser.user = user;
     assetToUser.asset = asset;
     await this.assetToUserRepo.save(assetToUser);
+    // await this.mailService.sendUserConfirmation(user, '');
     return request;
   }
 

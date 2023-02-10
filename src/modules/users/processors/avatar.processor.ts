@@ -9,7 +9,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Job } from 'bull';
 import * as fs from 'fs';
-import UserEntity from 'src/models/entities/user.enitity';
+import UserEntity from 'src/models/entities/user.entity';
 import { UserRepository } from 'src/models/repositories/user.repository';
 import {
   AVATAR_QUEUE,

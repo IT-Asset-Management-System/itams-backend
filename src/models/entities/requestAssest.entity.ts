@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import AssetModel from './assetModel.entity';
-import UserEntity from './user.enitity';
+import UserEntity from './user.entity';
 
 @Entity()
 export class RequestAsset {
