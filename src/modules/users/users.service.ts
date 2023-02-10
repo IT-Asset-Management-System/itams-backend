@@ -15,12 +15,14 @@ import UpdateProfileDto from './dtos/update-profile.dto';
 import * as fs from 'fs';
 import { DepartmentService } from '../department/department.service';
 import { UserDto } from './dtos/user.dto';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class UsersService {
   private logger = new Logger(UsersService.name);
 
   constructor(
+    private dataSource: DataSource,
     @InjectRepository(UserEntity)
     private userRepo: UserRepository,
     @InjectQueue(AVATAR_QUEUE)
@@ -73,6 +75,25 @@ export class UsersService {
 
     await this.userRepo.save(user);
     return user;
+  }
+
+  async importUser(userDtos: UserDto[]) {
+    await this.dataSource.transaction(async (manager) => {
+      await Promise.all(
+        userDtos.map(async (userDto: UserDto) => {
+          const user = new UserEntity();
+          let { password, departmentId, ...rest } = userDto;
+          Object.assign(user, rest);
+          const department = await this.departmentService.getDepartmentById(
+            userDto.departmentId,
+          );
+          user.password = await bcrypt.hash(userDto.password, 10);
+          user.department = department;
+          await manager.save(user);
+        }),
+      );
+    });
+    return userDtos;
   }
 
   async updateUser(id: number, userDto: UserDto) {
