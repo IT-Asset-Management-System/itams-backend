@@ -65,6 +65,9 @@ export class UsersService {
     user.name = userDto.name;
     user.username = userDto.username;
     user.password = await bcrypt.hash(userDto.password, 10);
+    user.phone = userDto.phone;
+    user.email = user.email;
+    user.birthday = userDto.birthday;
     user.avatar = userDto.avatar;
     user.department = department;
 

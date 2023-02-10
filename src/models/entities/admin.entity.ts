@@ -17,6 +17,9 @@ export class AdminEntity extends BaseEntity {
   })
   username: string;
 
+  @Column({ default: null })
+  email: string;
+
   @Column({})
   @Exclude()
   password: string;

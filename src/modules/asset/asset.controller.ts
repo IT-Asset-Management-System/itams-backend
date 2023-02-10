@@ -125,7 +125,7 @@ export class AssetController {
   ) {
     return await this.assetService.createNewRequestAsset(
       request.user.id,
-      newRequest.assetModelId,
+      newRequest,
     );
   }
 }

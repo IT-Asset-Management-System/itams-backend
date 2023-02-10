@@ -18,12 +18,22 @@ export class UserDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  avatar: string;
+  phone: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  email: string;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
-  phone: string;
+  birthday: Date;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  avatar: string;
 
   @ApiProperty()
   @IsNotEmpty()

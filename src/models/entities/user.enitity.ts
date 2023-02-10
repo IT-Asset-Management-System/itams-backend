@@ -32,6 +32,17 @@ export class UserEntity extends BaseEntity {
   @Exclude()
   password: string;
 
+  @Column({ default: null })
+  phone: string;
+
+  @Column({ default: null })
+  email: string;
+
+  @Column({
+    default: null,
+  })
+  birthday: Date;
+
   @Column({
     default: DEFAULT_AVATAR,
   })
@@ -40,20 +51,11 @@ export class UserEntity extends BaseEntity {
   @ManyToOne(() => Department, (department) => department.users)
   department: Department;
 
-  @Column({ default: null })
-  phone: string;
-
   @OneToMany(() => AssetToUser, (assetToUser) => assetToUser.user)
   assetToUsers: AssetToUser[];
 
   @OneToMany(() => RequestAsset, (requestAsset) => requestAsset.user)
   requestAssets: RequestAsset[];
-
-  // @Column('date')
-  // @Column({
-  //   default: null,
-  // })
-  // birthday: Date;
 }
 
 export default UserEntity;

@@ -33,6 +33,7 @@ import { AssetDto } from './dtos/asset.dto';
 import { AssetQueryDto } from './dtos/assetQuery.dto';
 import { CheckinAssetDto } from './dtos/checkinAsset.dto';
 import { CheckoutAssetDto } from './dtos/checkoutAsset.dto';
+import { NewRequestAsset } from './dtos/new-request-asset.dto';
 
 @Injectable()
 export class AssetService {
@@ -87,15 +88,17 @@ export class AssetService {
           relations: { user: true },
           where: { asset: { id: asset.id } },
         });
+        const user = assetToUser
+          ? await this.userService.getUserById(assetToUser?.user?.id)
+          : null;
         return {
           ...rest,
           assetModel: asset?.assetModel?.name,
           department: asset?.department?.name,
           status: asset?.status?.name,
           supplier: asset?.supplier?.name,
-          user: assetToUser
-            ? await this.userService.getUserById(assetToUser?.user?.id)
-            : null,
+          username: assetToUser ? user?.name : null,
+          user: user,
           check_type: assetToUser ? CheckType.CHECKIN : CheckType.CHECKOUT,
         };
       }),
@@ -439,22 +442,19 @@ export class AssetService {
     return res;
   }
 
-  async createNewRequestAsset(userId: number, categoryId: number) {
+  async createNewRequestAsset(userId: number, newRequest: NewRequestAsset) {
     const newRequestAsset = new RequestAsset();
 
     const user = await this.userService.getUserById(userId);
-    // user.requestAssets.push(newRequestAsset);
-    // await this.userService.saveUser(user);
 
     const assetModel = await this.assetModelService.getAssetModelById(
-      categoryId,
+      newRequest.assetModelId,
     );
-    // category.requestAssets.push(newRequestAsset);
-    // await this.categoryService.saveCategory(category);
     if (!assetModel)
-      throw new HttpException('Category not exist', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Model not exist', HttpStatus.BAD_REQUEST);
     newRequestAsset.user = user;
     newRequestAsset.assetModel = assetModel;
+    newRequestAsset.note = newRequest.note;
     await this.requestAssetRepo.save(newRequestAsset);
     return newRequestAsset;
   }

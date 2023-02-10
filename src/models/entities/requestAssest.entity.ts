@@ -27,4 +27,7 @@ export class RequestAsset {
 
   @ManyToOne(() => UserEntity, (userEntity) => userEntity.requestAssets)
   user: UserEntity;
+
+  @Column({ default: null })
+  note: string;
 }

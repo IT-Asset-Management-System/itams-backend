@@ -15,7 +15,7 @@ export class AuthService {
 
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.getUserByUsername(username);
-    if (user && this.checkPassword(pass, user.password)) {
+    if (user && (await this.checkPassword(pass, user.password))) {
       const { password, ...result } = user;
       return result;
     }
@@ -24,7 +24,7 @@ export class AuthService {
 
   async validateAdmin(username: string, pass: string): Promise<any> {
     const admin = await this.adminService.getAdminByUsername(username);
-    if (admin && this.checkPassword(pass, admin.password)) {
+    if (admin && (await this.checkPassword(pass, admin.password))) {
       const { password, ...result } = admin;
       return result;
     }
@@ -89,9 +89,6 @@ export class AuthService {
 
   private async checkPassword(rawPassword: string, hashedPassword: string) {
     const isPasswordTrue = await bcrypt.compare(rawPassword, hashedPassword);
-
-    if (!isPasswordTrue) {
-      throw new HttpException('Wrong password', HttpStatus.BAD_REQUEST);
-    }
+    return isPasswordTrue;
   }
 }
