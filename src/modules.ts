@@ -35,12 +35,6 @@ export const Modules = [
     entities: [__dirname + '/models/entities/**/*{.ts,.js}'],
     synchronize: true,
   }),
-  BullModule.forRoot({
-    redis: {
-      host: process.env.REDIS_HOST,
-      port: parseInt(process.env.REDIS_PORT),
-    },
-  }),
   ScheduleModule.forRoot(),
   AuthModule,
   UsersModule,

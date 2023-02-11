@@ -35,7 +35,9 @@ export class InventoryService {
         ...rest,
         department: department.name,
         assets: assetToInventories?.length ?? 0,
-        remaining: assetToInventories.filter((assetToInventory) => assetToInventory.check === false).length,
+        remaining: assetToInventories.filter(
+          (assetToInventory) => assetToInventory.check === false,
+        ).length,
       };
     });
     return res;

@@ -13,8 +13,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
-import { join } from 'path';
-import { of } from 'rxjs';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
 import { AdminService } from './admin.service';
 import UpdateProfileDto from './dtos/update-profile.dto';
@@ -40,11 +38,5 @@ export class AdminController {
   ) {
     const res = await this.adminService.saveAvatar(request.user, file);
     return res;
-  }
-
-  @Delete('delete-avatar')
-  @UseGuards(JwtAdminAuthGuard)
-  async deleteAvatar(@Request() request) {
-    return this.adminService.deleteAvatar(request.user.id);
   }
 }

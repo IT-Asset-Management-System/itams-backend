@@ -90,10 +90,4 @@ export class UserController {
     const res = await this.userService.saveAvatar(request.user, file);
     return res;
   }
-
-  @Delete('delete-avatar')
-  @UseGuards(JwtAllAuthGuard)
-  async deleteAvatar(@Req() request: RequestWithUser) {
-    return this.userService.deleteAvatar(request.user.id);
-  }
 }

@@ -4,16 +4,8 @@ import UserEntity from 'src/models/entities/user.entity';
 import { UserRepository } from 'src/models/repositories/user.repository';
 import CreateUserDto from './dtos/create-user.dto';
 import * as bcrypt from 'bcrypt';
-import { InjectQueue } from '@nestjs/bull';
-import {
-  AVATAR_PATH,
-  AVATAR_QUEUE,
-  DEFAULT_AVATAR,
-  RESIZING_AVATAR,
-} from './user.constants';
-import { Queue } from 'bull';
+import { AVATAR_PATH } from './user.constants';
 import UpdateProfileDto from './dtos/update-profile.dto';
-import * as fs from 'fs';
 import { DepartmentService } from '../department/department.service';
 import { UserDto } from './dtos/user.dto';
 import { DataSource } from 'typeorm';
@@ -27,8 +19,6 @@ export class UsersService {
     private dataSource: DataSource,
     @InjectRepository(UserEntity)
     private userRepo: UserRepository,
-    @InjectQueue(AVATAR_QUEUE)
-    private avatarQueue: Queue,
     private departmentService: DepartmentService,
     private firebaseService: FirebaseService,
   ) {}
@@ -158,44 +148,6 @@ export class UsersService {
     await this.userRepo.save(newUser);
 
     return newUser;
-  }
-
-  async addAvatarToQueue(id: number, file: Express.Multer.File) {
-    try {
-      this.avatarQueue.add(RESIZING_AVATAR, {
-        id,
-        file,
-      });
-    } catch (error) {
-      this.logger.error(`Failed to send avatar ${file} to queue`);
-    }
-  }
-
-  async deleteAvatar(userId: number) {
-    const user = await this.getUserById(userId);
-
-    if (user.avatar != DEFAULT_AVATAR) {
-      fs.unlink('./uploads/avatars/40x40/' + user.avatar, (err) => {
-        if (err) {
-          console.error(err);
-          return err;
-        }
-      });
-
-      fs.unlink('./uploads/avatars/original/' + user.avatar, (err) => {
-        if (err) {
-          console.error(err);
-          return err;
-        }
-      });
-
-      user.avatar = DEFAULT_AVATAR;
-    }
-
-    delete user.username;
-    delete user.password;
-
-    return this.userRepo.save(user);
   }
 
   async updateProfile(userId: number, userData: UpdateProfileDto) {

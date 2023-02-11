@@ -1,16 +1,8 @@
-import { InjectQueue } from '@nestjs/bull';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Queue } from 'bull';
 import AdminEntity from 'src/models/entities/admin.entity';
 import { AdminRepository } from 'src/models/repositories/admin.repository';
-import {
-  AVATAR_ADMIN_QUEUE,
-  AVATAR_PATH,
-  DEFAULT_AVATAR,
-  RESIZING_AVATAR_ADMIN,
-} from './admin.constants';
-import * as fs from 'fs';
+import { AVATAR_PATH } from './admin.constants';
 import * as bcrypt from 'bcrypt';
 import UpdateProfileDto from './dtos/update-profile.dto';
 import { FirebaseService } from '../firebase/firebase.service';
@@ -22,8 +14,6 @@ export class AdminService {
   constructor(
     @InjectRepository(AdminEntity)
     private adminRepo: AdminRepository,
-    @InjectQueue(AVATAR_ADMIN_QUEUE)
-    private avatarQueue: Queue,
     private firebaseService: FirebaseService,
   ) {}
 
@@ -65,44 +55,6 @@ export class AdminService {
   async uploadImage(file: Express.Multer.File, path: string) {
     let url: string = await this.firebaseService.uploadFile(file, path);
     return url;
-  }
-
-  async addAvatarToQueue(id: number, file: Express.Multer.File) {
-    try {
-      this.avatarQueue.add(RESIZING_AVATAR_ADMIN, {
-        id,
-        file,
-      });
-    } catch (error) {
-      this.logger.error(`Failed to send avatar ${file} to queue`);
-    }
-  }
-
-  async deleteAvatar(adminId: number) {
-    const admin = await this.getAdminById(adminId);
-
-    if (admin.avatar != DEFAULT_AVATAR) {
-      fs.unlink('./uploads/admin/avatars/40x40/' + admin.avatar, (err) => {
-        if (err) {
-          console.error(err);
-          return err;
-        }
-      });
-
-      fs.unlink('./uploads/admin/avatars/original/' + admin.avatar, (err) => {
-        if (err) {
-          console.error(err);
-          return err;
-        }
-      });
-
-      admin.avatar = DEFAULT_AVATAR;
-    }
-
-    delete admin.username;
-    delete admin.password;
-
-    return this.adminRepo.save(admin);
   }
 
   async updateProfile(adminId: number, adminData: UpdateProfileDto) {
