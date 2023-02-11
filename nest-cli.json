@@ -3,7 +3,6 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "assets": ["modules/mail/templates/**/*"],
-    "watchAssets": true,
-    "moduleResolution": "node"
+    "watchAssets": true
   }
 }
