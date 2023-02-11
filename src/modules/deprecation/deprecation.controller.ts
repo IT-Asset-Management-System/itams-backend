@@ -12,7 +12,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
 import { JwtAllAuthGuard } from '../auth/guards/jwt-all-auth.guard';
 import { DeprecationService } from './deprecation.service';
-import { DeprecationDto } from './dtos/Deprecation.dto';
+import { DeprecationDto } from './dtos/deprecation.dto';
 
 @ApiTags('deprecation')
 @Controller('deprecation')

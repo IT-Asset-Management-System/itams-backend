@@ -12,7 +12,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
 import { JwtAllAuthGuard } from '../auth/guards/jwt-all-auth.guard';
 import { AssetModelService } from './assetModel.service';
-import { AssetModelDto } from './dtos/AssetModel.dto';
+import { AssetModelDto } from './dtos/assetModel.dto';
 
 @ApiTags('asset-model')
 @Controller('asset-model')

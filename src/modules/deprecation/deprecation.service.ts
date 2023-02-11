@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import Deprecation from 'src/models/entities/Deprecation.entity';
-import { DeprecationRepository } from 'src/models/repositories/Deprecation.repository';
+import Deprecation from '../../models/entities/deprecation.entity';
+import { DeprecationRepository } from '../../models/repositories/deprecation.repository';
 import { CategoryService } from '../category/category.service';
-import { DeprecationDto } from './dtos/Deprecation.dto';
+import { DeprecationDto } from './dtos/deprecation.dto';
 
 @Injectable()
 export class DeprecationService {
