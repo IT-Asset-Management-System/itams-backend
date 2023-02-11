@@ -1,3 +1,5 @@
 export const AVATAR_ADMIN_QUEUE = 'AVATAR_ADMIN_QUEUE';
 export const RESIZING_AVATAR_ADMIN = 'RESIZING_AVATAR_ADMIN';
-export const DEFAULT_AVATAR = 'default-avatar.jpg';
+export const DEFAULT_AVATAR =
+  'https://storage.googleapis.com/itams-73af8.appspot.com/user%2Favatar%2Fdefault-avatare6435615-d4cc-4b3c-9952-116a60369d8b.jpg';
+export const AVATAR_PATH = 'admin/avatar';

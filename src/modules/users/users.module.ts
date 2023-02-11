@@ -8,6 +8,7 @@ import { UsersService } from './users.service';
 import { UserController } from './user.controller';
 import { AvatarProcessor } from './processors/avatar.processor';
 import { DepartmentModule } from '../department/department.module';
+import { FirebaseModule } from '../firebase/firebase.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { DepartmentModule } from '../department/department.module';
       name: AVATAR_QUEUE,
     }),
     DepartmentModule,
+    FirebaseModule,
   ],
   controllers: [UserController],
   providers: [UsersService, UserRepository, AvatarProcessor],

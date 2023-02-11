@@ -1,27 +1,10 @@
-import { diskStorage } from 'multer';
-import { v4 as uuidv4 } from 'uuid';
-import path = require('path');
-import { BadRequestException } from '@nestjs/common';
+import { memoryStorage } from 'multer';
 
 export const avatarStorageOptions = {
-  storage: diskStorage({
-    destination: './uploads/admin/avatars/original/',
-    filename: (request, file, callback) => {
-      if (!file.mimetype.includes('image')) {
-        return callback(
-          new BadRequestException('Please provide a valid image'),
-          null,
-        );
-      }
-
-      const filename: string =
-        path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
-      const extension: string = path.parse(file.originalname).ext;
-
-      callback(null, `${filename}${extension}`);
-    },
-  }),
+  // sử dụng memory storage
+  storage: memoryStorage(),
+  // tối đa 4 Mb
   limits: {
-    fileSize: Math.pow(1024, 2) * 2,
+    fileSize: Math.pow(1024, 2) * 4,
   },
 };

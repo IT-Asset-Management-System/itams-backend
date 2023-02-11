@@ -33,25 +33,13 @@ export class AdminController {
 
   @Post('save-avatar')
   @UseGuards(JwtAdminAuthGuard)
-  @UseInterceptors(FileInterceptor('file', avatarStorageOptions))
+  @UseInterceptors(FileInterceptor('image', avatarStorageOptions))
   async saveAvatar(
     @UploadedFile() file: Express.Multer.File,
     @Request() request,
   ) {
-    return await this.adminService.addAvatarToQueue(request.user.id, file);
-  }
-
-  @Get('get-avatar')
-  @UseGuards(JwtAdminAuthGuard)
-  async findAvatar(@Request() request, @Response() res) {
-    return of(
-      res.sendFile(
-        join(
-          process.cwd(),
-          './uploads/admin/avatars/40x40/' + request.user.avatar,
-        ),
-      ),
-    );
+    const res = await this.adminService.saveAvatar(request.user, file);
+    return res;
   }
 
   @Delete('delete-avatar')

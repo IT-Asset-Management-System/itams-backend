@@ -6,12 +6,14 @@ import AdminEntity from 'src/models/entities/admin.entity';
 import { AdminRepository } from 'src/models/repositories/admin.repository';
 import {
   AVATAR_ADMIN_QUEUE,
+  AVATAR_PATH,
   DEFAULT_AVATAR,
   RESIZING_AVATAR_ADMIN,
 } from './admin.constants';
 import * as fs from 'fs';
 import * as bcrypt from 'bcrypt';
 import UpdateProfileDto from './dtos/update-profile.dto';
+import { FirebaseService } from '../firebase/firebase.service';
 
 @Injectable()
 export class AdminService {
@@ -22,6 +24,7 @@ export class AdminService {
     private adminRepo: AdminRepository,
     @InjectQueue(AVATAR_ADMIN_QUEUE)
     private avatarQueue: Queue,
+    private firebaseService: FirebaseService,
   ) {}
 
   async getAdminByUsername(username: string) {
@@ -48,6 +51,20 @@ export class AdminService {
       'No admin with this ID has been found',
       HttpStatus.NOT_FOUND,
     );
+  }
+
+  async saveAvatar(admin: AdminEntity, file: Express.Multer.File) {
+    // upload ảnh lên storage
+    const avatar = await this.uploadImage(file, AVATAR_PATH);
+    // cập nhật db
+    await this.adminRepo.update({ id: admin.id }, { avatar });
+    const newAdmin = await this.getAdminById(admin.id);
+    return newAdmin;
+  }
+
+  async uploadImage(file: Express.Multer.File, path: string) {
+    let url: string = await this.firebaseService.uploadFile(file, path);
+    return url;
   }
 
   async addAvatarToQueue(id: number, file: Express.Multer.File) {

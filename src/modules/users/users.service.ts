@@ -6,6 +6,7 @@ import CreateUserDto from './dtos/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { InjectQueue } from '@nestjs/bull';
 import {
+  AVATAR_PATH,
   AVATAR_QUEUE,
   DEFAULT_AVATAR,
   RESIZING_AVATAR,
@@ -16,6 +17,7 @@ import * as fs from 'fs';
 import { DepartmentService } from '../department/department.service';
 import { UserDto } from './dtos/user.dto';
 import { DataSource } from 'typeorm';
+import { FirebaseService } from '../firebase/firebase.service';
 
 @Injectable()
 export class UsersService {
@@ -28,6 +30,7 @@ export class UsersService {
     @InjectQueue(AVATAR_QUEUE)
     private avatarQueue: Queue,
     private departmentService: DepartmentService,
+    private firebaseService: FirebaseService,
   ) {}
 
   async getAll() {
@@ -118,11 +121,6 @@ export class UsersService {
     if (user) {
       return user;
     }
-
-    // throw new HttpException(
-    //   'No user with this username has been found',
-    //   HttpStatus.NOT_FOUND,
-    // );
   }
 
   async getUserById(id: number) {
@@ -136,6 +134,20 @@ export class UsersService {
       'No user with this ID has been found',
       HttpStatus.NOT_FOUND,
     );
+  }
+
+  async saveAvatar(user: UserEntity, file: Express.Multer.File) {
+    // upload ảnh lên storage
+    const avatar = await this.uploadImage(file, AVATAR_PATH);
+    // cập nhật db
+    await this.userRepo.update({ id: user.id }, { avatar });
+    const newUser = await this.getUserById(user.id);
+    return newUser;
+  }
+
+  async uploadImage(file: Express.Multer.File, path: string) {
+    let url: string = await this.firebaseService.uploadFile(file, path);
+    return url;
   }
 
   async createUser(createUserDto: CreateUserDto) {

@@ -82,22 +82,13 @@ export class UserController {
 
   @Post('save-avatar')
   @UseGuards(JwtAllAuthGuard)
-  @UseInterceptors(FileInterceptor('file', avatarStorageOptions))
+  @UseInterceptors(FileInterceptor('image', avatarStorageOptions))
   async saveAvatar(
     @UploadedFile() file: Express.Multer.File,
     @Req() request: RequestWithUser,
   ) {
-    return await this.userService.addAvatarToQueue(request.user.id, file);
-  }
-
-  @Get('get-avatar')
-  @UseGuards(JwtAllAuthGuard)
-  async findAvatar(@Req() request: RequestWithUser, @Res() res) {
-    return of(
-      res.sendFile(
-        join(process.cwd(), './uploads/avatars/40x40/' + request.user.avatar),
-      ),
-    );
+    const res = await this.userService.saveAvatar(request.user, file);
+    return res;
   }
 
   @Delete('delete-avatar')
