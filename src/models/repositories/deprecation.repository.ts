@@ -1,4 +1,4 @@
 import { Repository } from 'typeorm';
-import Deprecation from '../Entities/deprecation.entity';
+import Deprecation from '../entities/deprecation.entity';
 
 export class DeprecationRepository extends Repository<Deprecation> {}
