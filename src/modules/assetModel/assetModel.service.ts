@@ -4,7 +4,7 @@ import AssetModel from 'src/models/entities/assetModel.entity';
 import { AssetModelRepository } from 'src/models/repositories/assetModel.repository';
 import { CategoryService } from '../category/category.service';
 import { ManufacturerService } from '../manufacturer/manufacturer.service';
-import { AssetModelDto } from './dtos/AssetModel.dto';
+import { AssetModelDto } from './Dtos/AssetModel.dto';
 
 @Injectable()
 export class AssetModelService {
