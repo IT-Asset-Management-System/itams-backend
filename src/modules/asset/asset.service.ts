@@ -19,6 +19,7 @@ import { AssetRepository } from 'src/models/repositories/asset.repository';
 import { AssetToUserRepository } from 'src/models/repositories/assetToUser.repository';
 import { RequestAssetRepository } from 'src/models/repositories/requestAsset.repository';
 import { DataSource, In, IsNull, Not } from 'typeorm';
+import { AdminService } from '../admin/admin.service';
 import { AssetModelService } from '../assetModel/assetModel.service';
 import { CategoryService } from '../category/category.service';
 import { DepartmentService } from '../department/department.service';
@@ -49,6 +50,7 @@ export class AssetService {
     @InjectRepository(RequestAsset)
     private requestAssetRepo: RequestAssetRepository,
     private userService: UsersService,
+    private adminService: AdminService,
     private assetModelService: AssetModelService,
     private departmentService: DepartmentService,
     private statusService: StatusService,
@@ -237,6 +239,7 @@ export class AssetService {
     assetToUser.checkout_date = checkoutAssetDto.checkout_date;
     assetToUser.checkout_note = checkoutAssetDto.checkout_note;
     await this.assetToUserRepo.save(assetToUser);
+    await this.mailService.sendUserCheckoutAsset(user, asset);
     return assetToUser;
   }
 
@@ -332,13 +335,18 @@ export class AssetService {
     const asset = await this.getAssetById(assetId);
     assetToUser.user = user;
     assetToUser.asset = asset;
+    assetToUser.checkout_date = dayjs().toDate();
     await this.assetToUserRepo.save(assetToUser);
-    // await this.mailService.sendUserConfirmation(user, '');
+    await this.mailService.sendUserAcceptRequest(user, asset);
     return request;
   }
 
   async rejectRequest(id: number) {
-    const request = await this.requestAssetRepo.findOneBy({ id });
+    const request = await this.requestAssetRepo.findOne({
+      where: { id },
+      relations: { user: true },
+    });
+    const user = await this.userService.getUserById(request.user.id);
     if (request.status !== RequestAssetStatus.REQUESTED)
       throw new HttpException(
         'This request was accepted/rejected',
@@ -346,6 +354,7 @@ export class AssetService {
       );
     request.status = RequestAssetStatus.REJECTED;
     await this.requestAssetRepo.save(request);
+    await this.mailService.sendUserRejectRequest(user);
     return request;
   }
 
@@ -449,7 +458,7 @@ export class AssetService {
     const newRequestAsset = new RequestAsset();
 
     const user = await this.userService.getUserById(userId);
-
+    const admins = await this.adminService.getAllAdmins();
     const assetModel = await this.assetModelService.getAssetModelById(
       newRequest.assetModelId,
     );
@@ -459,6 +468,11 @@ export class AssetService {
     newRequestAsset.assetModel = assetModel;
     newRequestAsset.note = newRequest.note;
     await this.requestAssetRepo.save(newRequestAsset);
+    await Promise.all(
+      admins.map(async (admin) => {
+        await this.mailService.sendAdminRequestAsset(user, admin);
+      }),
+    );
     return newRequestAsset;
   }
 }

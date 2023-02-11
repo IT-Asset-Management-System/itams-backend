@@ -6,6 +6,7 @@ import { RequestAsset } from 'src/models/entities/requestAssest.entity';
 import { AssetRepository } from 'src/models/repositories/asset.repository';
 import { AssetToUserRepository } from 'src/models/repositories/assetToUser.repository';
 import { RequestAssetRepository } from 'src/models/repositories/requestAsset.repository';
+import { AdminModule } from '../admin/admin.module';
 import { AssetModelModule } from '../assetModel/assetModel.module';
 import { CategoryModule } from '../category/category.module';
 import { DepartmentModule } from '../department/department.module';
@@ -22,6 +23,7 @@ import { AssetService } from './asset.service';
   imports: [
     TypeOrmModule.forFeature([Asset, AssetToUser, RequestAsset]),
     UsersModule,
+    AdminModule,
     AssetModelModule,
     DepartmentModule,
     StatusModule,

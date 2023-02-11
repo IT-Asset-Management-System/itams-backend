@@ -30,11 +30,11 @@ export class AdminService {
     if (admin) {
       return admin;
     }
+  }
 
-    // throw new HttpException(
-    //   'No admin with this username has been found',
-    //   HttpStatus.NOT_FOUND,
-    // );
+  async getAllAdmins() {
+    const admins = await this.adminRepo.find();
+    return admins;
   }
 
   async getAdminById(id: number) {
