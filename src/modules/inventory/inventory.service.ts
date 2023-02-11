@@ -27,13 +27,15 @@ export class InventoryService {
 
   async getAllInventories() {
     const inventories = await this.inventoryRepo.find({
-      relations: { department: true },
+      relations: { department: true, assetToInventories: true },
     });
     const res = inventories.map((inventory) => {
-      const { department, ...rest } = inventory;
+      const { department, assetToInventories, ...rest } = inventory;
       return {
         ...rest,
         department: department.name,
+        assets: assetToInventories?.length ?? 0,
+        remaining: assetToInventories.filter((assetToInventory) => assetToInventory.check === false).length,
       };
     });
     return res;
