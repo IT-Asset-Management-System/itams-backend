@@ -15,6 +15,7 @@ import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AssetService } from './asset.service';
 import { AssetDto } from './dtos/asset.dto';
+import { AssetHistoryQueryDto } from './dtos/assetHistoryQuery.dto';
 import { AssetQueryDto } from './dtos/assetQuery.dto';
 import { CheckinAssetDto } from './dtos/checkinAsset.dto';
 import { CheckoutAssetDto } from './dtos/checkoutAsset.dto';
@@ -29,6 +30,12 @@ export class AssetController {
   @UseGuards(JwtAdminAuthGuard)
   async getAllAssets(@Query() assetQuery: AssetQueryDto) {
     return await this.assetService.getAll(assetQuery);
+  }
+
+  @Get('asset-history')
+  @UseGuards(JwtAdminAuthGuard)
+  async getAssetHistory(@Query() assetHistoryQueryDto: AssetHistoryQueryDto) {
+    return await this.assetService.getAssetHistory(assetHistoryQueryDto);
   }
 
   @Get('get-asset-by-id')

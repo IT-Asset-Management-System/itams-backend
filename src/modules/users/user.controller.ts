@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   Res,
   UploadedFile,
@@ -24,6 +25,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
 import { JwtAllAuthGuard } from '../auth/guards/jwt-all-auth.guard';
 import { UserDto } from './dtos/user.dto';
+import { UserQueryDto } from './dtos/userQuery.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -33,8 +35,8 @@ export class UserController {
   @Get('all-users')
   @UseGuards(JwtAdminAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
-  async getAllUsers() {
-    return await this.userService.getAll();
+  async getAllUsers(@Query() userQueryDto: UserQueryDto) {
+    return await this.userService.getAll(userQueryDto);
   }
 
   @Get('get-user-by-id')

@@ -5,6 +5,7 @@ import { AssetModelRepository } from 'src/models/repositories/assetModel.reposit
 import { CategoryService } from '../category/category.service';
 import { ManufacturerService } from '../manufacturer/manufacturer.service';
 import { AssetModelDto } from './dtos/assetModel.dto';
+import { AssetModelQueryDto } from './dtos/assetModelQuery.dto';
 
 @Injectable()
 export class AssetModelService {
@@ -16,9 +17,13 @@ export class AssetModelService {
     private manufacturerService: ManufacturerService,
   ) {}
 
-  async getAllAssetModels() {
+  async getAllAssetModels(assetModelQuery?: AssetModelQueryDto) {
     const assetModels = await this.assetModelRepo.find({
       relations: { assets: true, category: true, manufacturer: true },
+      where: {
+        category: { id: assetModelQuery.categoryId },
+        manufacturer: { id: assetModelQuery.manufacturerId },
+      },
     });
     const res = assetModels.map((assetModel) => {
       const { assets, category, manufacturer, ...rest } = assetModel;
