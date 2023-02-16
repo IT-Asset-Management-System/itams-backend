@@ -20,7 +20,8 @@ export class SupplierService {
       const { assets, licenses, ...rest } = supplier;
       return {
         ...rest,
-        numOfAssets: assets?.length ?? 0 + licenses?.length ?? 0,
+        assets: assets?.length ?? 0,
+        licenses: licenses?.length ?? 0,
       };
     });
     return res;

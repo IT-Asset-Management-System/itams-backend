@@ -32,6 +32,7 @@ import { SupplierService } from '../supplier/supplier.service';
 import { UsersService } from '../users/users.service';
 import { CheckType, RequestAssetStatus } from './asset.constants';
 import { AssetDto } from './dtos/asset.dto';
+import { AssetHistoryQueryDto } from './dtos/assetHistoryQuery.dto';
 import { AssetQueryDto } from './dtos/assetQuery.dto';
 import { CheckinAssetDto } from './dtos/checkinAsset.dto';
 import { CheckoutAssetDto } from './dtos/checkoutAsset.dto';
@@ -75,35 +76,67 @@ export class AssetService {
         assetModel: { id: assetQuery.assetModelId },
         department: { id: assetQuery.departmentId },
         status: { id: assetQuery.statusId },
-        supplier: { id: assetQuery.supplierId },
       },
     });
+    return (
+      await Promise.all(
+        assets.map(async (asset) => {
+          const {
+            assetModel,
+            department,
+            status,
+            supplier,
+            assetToUsers,
+            ...rest
+          } = asset;
+          const assetToUser = await this.assetToUserRepo.findOne({
+            relations: { user: true },
+            where: { asset: { id: asset.id } },
+          });
+          const user = assetToUser
+            ? await this.userService.getUserById(assetToUser?.user?.id)
+            : null;
+          const res = {
+            ...rest,
+            assetModel: asset?.assetModel?.name,
+            department: asset?.department?.name,
+            status: asset?.status?.name,
+            supplier: asset?.supplier?.name,
+            username: assetToUser ? user?.name : null,
+            user: user,
+            check_type: assetToUser ? CheckType.CHECKIN : CheckType.CHECKOUT,
+          };
+          if (assetQuery.userId) {
+            if (Number(user?.id) === Number(assetQuery?.userId)) return res;
+            else return;
+          }
+          return res;
+        }),
+      )
+    ).filter((item) => Boolean(item));
+  }
+
+  async getAssetHistory(assetHistoryQueryDto?: AssetHistoryQueryDto) {
+    const assetToUsers: AssetToUser[] = await this.assetToUserRepo.find({
+      relations: {
+        asset: true,
+        user: true,
+      },
+      where: {
+        asset: { id: assetHistoryQueryDto.assetId },
+        user: { id: assetHistoryQueryDto.userId },
+      },
+      withDeleted: true,
+    });
     return Promise.all(
-      assets.map(async (asset) => {
-        const {
-          assetModel,
-          department,
-          status,
-          supplier,
-          assetToUsers,
-          ...rest
-        } = asset;
-        const assetToUser = await this.assetToUserRepo.findOne({
-          relations: { user: true },
-          where: { asset: { id: asset.id } },
-        });
-        const user = assetToUser
-          ? await this.userService.getUserById(assetToUser?.user?.id)
-          : null;
+      assetToUsers.map((assetToUser: AssetToUser) => {
+        const { asset, user, ...rest } = assetToUser;
         return {
           ...rest,
-          assetModel: asset?.assetModel?.name,
-          department: asset?.department?.name,
-          status: asset?.status?.name,
-          supplier: asset?.supplier?.name,
-          username: assetToUser ? user?.name : null,
-          user: user,
-          check_type: assetToUser ? CheckType.CHECKIN : CheckType.CHECKOUT,
+          assetId: asset?.id,
+          assetName: asset?.name,
+          userId: user?.id,
+          userName: user?.name,
         };
       }),
     );

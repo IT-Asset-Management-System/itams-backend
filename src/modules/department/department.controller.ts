@@ -7,12 +7,14 @@ import {
   Body,
   ParseIntPipe,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
 import { JwtAllAuthGuard } from '../auth/guards/jwt-all-auth.guard';
 import { DepartmentDto } from './dtos/department.dto';
 import { DepartmentService } from './department.service';
+import { DepartmentQueryDto } from './dtos/departmentQuery.dto';
 
 @ApiTags('department')
 @Controller('department')
@@ -21,8 +23,8 @@ export class DepartmentController {
 
   @Get('all')
   @UseGuards(JwtAllAuthGuard)
-  async getAllDepartments() {
-    return await this.departmentService.getAllDepartments();
+  async getAllDepartments(@Query() departmentQuery: DepartmentQueryDto) {
+    return await this.departmentService.getAllDepartments(departmentQuery);
   }
 
   @Get('get-department-by-id')

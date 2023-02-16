@@ -5,6 +5,7 @@ import { AssetMaintenanceRepository } from 'src/models/repositories/assetMainten
 import { AssetService } from '../asset/asset.service';
 import { SupplierService } from '../supplier/supplier.service';
 import { AssetMaintenanceDto } from './dtos/assetMaintenance.dto';
+import { AssetMaintenanceQueryDto } from './dtos/assetMaintenanceQuery.dto';
 
 @Injectable()
 export class AssetMaintenanceService {
@@ -17,9 +18,14 @@ export class AssetMaintenanceService {
     private supplierService: SupplierService,
   ) {}
 
-  async getAllAssetMaintenances() {
+  async getAllAssetMaintenances(
+    assetMaintenanceQueryDto?: AssetMaintenanceQueryDto,
+  ) {
     const assetMaintenances = await this.assetMaintenanceRepo.find({
       relations: { asset: true, supplier: true },
+      where: {
+        asset: { id: assetMaintenanceQueryDto.assetId },
+      },
     });
     const res = assetMaintenances.map((assetMaintenance) => {
       const { asset, supplier, ...rest } = assetMaintenance;

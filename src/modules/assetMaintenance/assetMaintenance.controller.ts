@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -21,8 +22,12 @@ export class AssetMaintenanceController {
 
   @Get('all')
   @UseGuards(JwtAllAuthGuard)
-  async getAllAssetMaintenances() {
-    return await this.assetMaintenanceService.getAllAssetMaintenances();
+  async getAllAssetMaintenances(
+    @Query() assetMaintenanceDto: AssetMaintenanceDto,
+  ) {
+    return await this.assetMaintenanceService.getAllAssetMaintenances(
+      assetMaintenanceDto,
+    );
   }
 
   @Get('get-asset-maintenance-by-id')

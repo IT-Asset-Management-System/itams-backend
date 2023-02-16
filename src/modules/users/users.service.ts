@@ -10,6 +10,7 @@ import { DepartmentService } from '../department/department.service';
 import { UserDto } from './dtos/user.dto';
 import { DataSource } from 'typeorm';
 import { FirebaseService } from '../firebase/firebase.service';
+import { UserQueryDto } from './dtos/userQuery.dto';
 
 @Injectable()
 export class UsersService {
@@ -23,13 +24,19 @@ export class UsersService {
     private firebaseService: FirebaseService,
   ) {}
 
-  async getAll() {
-    const users = await this.userRepo.find({ relations: { department: true } });
+  async getAll(userQuery?: UserQueryDto) {
+    const users = await this.userRepo.find({
+      relations: { department: true, assetToUsers: true },
+      where: {
+        department: { id: userQuery.departmentId },
+      },
+    });
     const res = users.map((user) => {
-      const { department, password, ...rest } = user;
+      const { department, assetToUsers, password, ...rest } = user;
       return {
         ...rest,
         department: department?.name,
+        assets: assetToUsers?.length,
       };
     });
     return res;

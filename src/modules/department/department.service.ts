@@ -4,6 +4,7 @@ import Department from 'src/models/entities/department.entity';
 import { DepartmentRepository } from 'src/models/repositories/department.repository';
 import { LocationService } from '../location/location.service';
 import { DepartmentDto } from './dtos/department.dto';
+import { DepartmentQueryDto } from './dtos/departmentQuery.dto';
 
 @Injectable()
 export class DepartmentService {
@@ -14,17 +15,20 @@ export class DepartmentService {
     private locationService: LocationService,
   ) {}
 
-  async getAllDepartments() {
+  async getAllDepartments(departmentQuery?: DepartmentQueryDto) {
     const departments = await this.departmentRepo.find({
       relations: { assets: true, users: true, location: true },
+      where: {
+        location: { id: departmentQuery.locationId },
+      },
     });
     const res = departments.map((department) => {
       const { assets, users, location, ...rest } = department;
       return {
         ...rest,
-        numOfAssets: assets?.length ?? 0,
-        numOfUsers: users?.length ?? 0,
-        location: location.name,
+        assets: assets?.length ?? 0,
+        users: users?.length ?? 0,
+        location: location?.name ?? '',
       };
     });
     return res;
@@ -38,6 +42,10 @@ export class DepartmentService {
   async createNewDepartment(departmentDto: DepartmentDto) {
     const department = new Department();
     department.name = departmentDto.name;
+    const location = await this.locationService.getLocationById(
+      departmentDto.locationId,
+    );
+    department.location = location;
     await this.departmentRepo.save(department);
     return department;
   }

@@ -10,6 +10,7 @@ import { SupplierService } from '../supplier/supplier.service';
 import { LicenseDto } from './dtos/license.dto';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from '../notification/notification.constants';
+import { LicenseQueryDto } from './dtos/licenseQuery.dto';
 
 @Injectable()
 export class LicenseService {
@@ -25,12 +26,17 @@ export class LicenseService {
     private notificationService: NotificationService,
   ) {}
 
-  async getAll() {
+  async getAll(licenseQuery?: LicenseQueryDto) {
     const licenses = await this.licenseRepo.find({
       relations: {
         category: true,
         manufacturer: true,
         supplier: true,
+      },
+      where: {
+        category: { id: licenseQuery.categoryId },
+        manufacturer: { id: licenseQuery.manufacturerId },
+        supplier: { id: licenseQuery.supplierId },
       },
     });
     const res = licenses.map((license) => {

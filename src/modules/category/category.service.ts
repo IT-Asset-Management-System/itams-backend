@@ -20,7 +20,8 @@ export class CategoryService {
       const { assetModels, licenses, ...rest } = category;
       return {
         ...rest,
-        numOfAssets: assetModels.length + licenses.length,
+        assetModels: assetModels.length,
+        licenses: licenses.length,
       };
     });
     return res;

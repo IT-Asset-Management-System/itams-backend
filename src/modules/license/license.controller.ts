@@ -8,10 +8,12 @@ import {
   Body,
   ParseIntPipe,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
 import { LicenseDto } from './dtos/license.dto';
+import { LicenseQueryDto } from './dtos/licenseQuery.dto';
 import { LicenseService } from './license.service';
 
 @ApiTags('license')
@@ -21,8 +23,8 @@ export class LicenseController {
 
   @Get('all-licenses')
   @UseGuards(JwtAdminAuthGuard)
-  async getAllLicenses() {
-    return await this.licenseService.getAll();
+  async getAllLicenses(@Query() licenseQuery: LicenseQueryDto) {
+    return await this.licenseService.getAll(licenseQuery);
   }
 
   @Get('get-license-by-id')
