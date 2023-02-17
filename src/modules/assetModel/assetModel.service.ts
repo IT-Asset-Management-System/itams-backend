@@ -37,6 +37,19 @@ export class AssetModelService {
     return res;
   }
 
+  async getAssetModelByAssetModelId(id: number) {
+    const assetModel = await this.assetModelRepo.findOne({
+      where: { id },
+      relations: { category: true, manufacturer: true },
+    });
+    const { category, manufacturer, ...rest } = assetModel;
+    return {
+      ...rest,
+      category: category?.name,
+      manufacturer: manufacturer?.name,
+    };
+  }
+
   async getAssetModelById(id: number) {
     const assetModel = await this.assetModelRepo.findOneBy({ id });
     return assetModel;

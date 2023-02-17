@@ -7,6 +7,7 @@ import {
   Body,
   ParseIntPipe,
   Delete,
+  Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
@@ -25,9 +26,9 @@ export class ManufacturerController {
     return await this.manufacturerService.getAllManufacturers();
   }
 
-  @Get('get-manufacturer-by-id')
+  @Get('get-manufacturer-by-id/:id')
   @UseGuards(JwtAllAuthGuard)
-  async getManufacturerById(@Body('id', ParseIntPipe) id: number) {
+  async getManufacturerById(@Param('id', ParseIntPipe) id: number) {
     return await this.manufacturerService.getManufacturerById(id);
   }
 

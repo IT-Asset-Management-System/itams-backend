@@ -48,14 +48,7 @@ export class UsersService {
       relations: { department: true },
     });
     const { department, password, ...rest } = user;
-    if (user) {
-      return { ...rest, department: department.name };
-    }
-
-    throw new HttpException(
-      'No user with this ID has been found',
-      HttpStatus.NOT_FOUND,
-    );
+    return { ...rest, department: department.name };
   }
 
   async createNewUser(userDto: UserDto) {
