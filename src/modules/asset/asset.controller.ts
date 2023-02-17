@@ -10,8 +10,12 @@ import {
   Delete,
   Query,
   Param,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
+import { imageStorageOptions } from 'src/helpers/imageStorage';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AssetService } from './asset.service';
@@ -55,6 +59,17 @@ export class AssetController {
   @UseGuards(JwtAdminAuthGuard)
   async importAsset(@Body() assetDto: AssetDto[]) {
     return await this.assetService.importAsset(assetDto);
+  }
+
+  @Post('save-image')
+  @UseGuards(JwtAdminAuthGuard)
+  @UseInterceptors(FileInterceptor('image', imageStorageOptions))
+  async saveImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('id', ParseIntPipe) id: number,
+  ) {
+    const res = await this.assetService.saveImage(id, file);
+    return res;
   }
 
   @Put('update-asset')

@@ -24,13 +24,14 @@ import { AssetModelService } from '../assetModel/assetModel.service';
 import { CategoryService } from '../category/category.service';
 import { DepartmentService } from '../department/department.service';
 import { DeprecationService } from '../deprecation/deprecation.service';
+import { FirebaseService } from '../firebase/firebase.service';
 import { MailService } from '../mail/mail.service';
 import { NotificationType } from '../notification/notification.constants';
 import { NotificationService } from '../notification/notification.service';
 import { StatusService } from '../status/status.service';
 import { SupplierService } from '../supplier/supplier.service';
 import { UsersService } from '../users/users.service';
-import { CheckType, RequestAssetStatus } from './asset.constants';
+import { CheckType, IMAGE_PATH, RequestAssetStatus } from './asset.constants';
 import { AssetDto } from './dtos/asset.dto';
 import { AssetHistoryQueryDto } from './dtos/assetHistoryQuery.dto';
 import { AssetQueryDto } from './dtos/assetQuery.dto';
@@ -61,6 +62,7 @@ export class AssetService {
     @Inject(forwardRef(() => NotificationService))
     private notificationService: NotificationService,
     private mailService: MailService,
+    private firebaseService: FirebaseService,
   ) {}
 
   async getAll(assetQuery?: AssetQueryDto) {
@@ -186,6 +188,13 @@ export class AssetService {
     await this.assetRepo.save(asset);
     await this.handleCronAssetDeprecation();
     return asset;
+  }
+
+  async saveImage(id: number, file: Express.Multer.File) {
+    // upload ảnh lên storage
+    const image = await this.firebaseService.uploadFile(file, IMAGE_PATH);
+    // cập nhật db
+    return await this.assetRepo.update({ id }, { image });
   }
 
   async importAsset(assetDtos: AssetDto[]) {

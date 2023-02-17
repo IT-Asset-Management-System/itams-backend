@@ -2,7 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Manufacturer } from 'src/models/entities/manufacturer.entity';
 import { ManufacturerRepository } from 'src/models/repositories/manufacturer.repository';
+import { FirebaseService } from '../firebase/firebase.service';
 import { ManufacturerDto } from './dtos/manufacturer.dto';
+import { IMAGE_PATH } from './manufacturer.constants';
 
 @Injectable()
 export class ManufacturerService {
@@ -11,6 +13,7 @@ export class ManufacturerService {
   constructor(
     @InjectRepository(Manufacturer)
     private manufacturerRepo: ManufacturerRepository,
+    private firebaseService: FirebaseService,
   ) {}
 
   async getAllManufacturers() {
@@ -38,6 +41,13 @@ export class ManufacturerService {
     manufacturer.name = manufacturerDto.name;
     await this.manufacturerRepo.save(manufacturer);
     return manufacturer;
+  }
+
+  async saveImage(id: number, file: Express.Multer.File) {
+    // upload ảnh lên storage
+    const image = await this.firebaseService.uploadFile(file, IMAGE_PATH);
+    // cập nhật db
+    return await this.manufacturerRepo.update({ id }, { image });
   }
 
   async updateManufacturer(id: number, manufacturerDto: ManufacturerDto) {

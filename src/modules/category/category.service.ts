@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/models/entities/category.entity';
 import { CategoryRepository } from 'src/models/repositories/category.repository';
+import { FirebaseService } from '../firebase/firebase.service';
+import { IMAGE_PATH } from './category.constants';
 import { CategoryDto } from './dtos/category.dto';
 
 @Injectable()
@@ -10,6 +12,7 @@ export class CategoryService {
 
   constructor(
     @InjectRepository(Category) private categoryRepo: CategoryRepository,
+    private firebaseService: FirebaseService,
   ) {}
 
   async getAllCategories() {
@@ -37,6 +40,13 @@ export class CategoryService {
     category.name = categoryDto.name;
     await this.categoryRepo.save(category);
     return category;
+  }
+
+  async saveImage(id: number, file: Express.Multer.File) {
+    // upload ảnh lên storage
+    const image = await this.firebaseService.uploadFile(file, IMAGE_PATH);
+    // cập nhật db
+    return await this.categoryRepo.update({ id }, { image });
   }
 
   async updateCategory(id: number, categoryDto: CategoryDto) {

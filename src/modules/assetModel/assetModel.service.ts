@@ -3,7 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import AssetModel from 'src/models/entities/assetModel.entity';
 import { AssetModelRepository } from 'src/models/repositories/assetModel.repository';
 import { CategoryService } from '../category/category.service';
+import { FirebaseService } from '../firebase/firebase.service';
 import { ManufacturerService } from '../manufacturer/manufacturer.service';
+import { IMAGE_PATH } from './assetModel.constants';
 import { AssetModelDto } from './dtos/assetModel.dto';
 import { AssetModelQueryDto } from './dtos/assetModelQuery.dto';
 
@@ -15,6 +17,7 @@ export class AssetModelService {
     @InjectRepository(AssetModel) private assetModelRepo: AssetModelRepository,
     private categoryService: CategoryService,
     private manufacturerService: ManufacturerService,
+    private firebaseService: FirebaseService,
   ) {}
 
   async getAllAssetModels(assetModelQuery?: AssetModelQueryDto) {
@@ -70,6 +73,13 @@ export class AssetModelService {
 
     await this.assetModelRepo.save(assetModel);
     return assetModel;
+  }
+
+  async saveImage(id: number, file: Express.Multer.File) {
+    // upload ảnh lên storage
+    const image = await this.firebaseService.uploadFile(file, IMAGE_PATH);
+    // cập nhật db
+    return await this.assetModelRepo.update({ id }, { image });
   }
 
   async updateAssetModel(id: number, assetModelDto: AssetModelDto) {
