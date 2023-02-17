@@ -32,6 +32,7 @@ export class StatusService {
   async createNewStatus(statusDto: StatusDto) {
     const status = new Status();
     status.name = statusDto.name;
+    status.color = statusDto.color;
     await this.statusRepo.save(status);
     return status;
   }

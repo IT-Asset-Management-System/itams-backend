@@ -103,6 +103,7 @@ export class AssetService {
             assetModel: asset?.assetModel?.name,
             department: asset?.department?.name,
             status: asset?.status?.name,
+            statusColor: asset?.status?.color,
             supplier: asset?.supplier?.name,
             username: assetToUser ? user?.name : null,
             user: user,
@@ -160,6 +161,7 @@ export class AssetService {
       assetModel: asset?.assetModel?.name,
       department: asset?.department?.name,
       status: asset?.status?.name,
+      statusColor: asset?.status?.color,
       supplier: asset?.supplier?.name,
     };
   }

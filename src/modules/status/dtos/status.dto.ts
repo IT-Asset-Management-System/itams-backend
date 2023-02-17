@@ -6,4 +6,9 @@ export class StatusDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @ApiProperty({ required: true })
+  @IsString()
+  @IsNotEmpty()
+  color: string;
 }
