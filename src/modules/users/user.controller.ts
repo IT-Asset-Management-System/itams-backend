@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   ParseIntPipe,
   Post,
   Put,
@@ -39,10 +40,10 @@ export class UserController {
     return await this.userService.getAll(userQueryDto);
   }
 
-  @Get('get-user-by-id')
+  @Get('get-user-by-id/:id')
   @UseGuards(JwtAdminAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
-  async getUserById(@Body('id', ParseIntPipe) id: number) {
+  async getUserById(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.getUserByUserId(id);
   }
 

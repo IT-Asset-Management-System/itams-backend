@@ -34,6 +34,18 @@ export class DepartmentService {
     return res;
   }
 
+  async getDepartmentByDepartmentId(id: number) {
+    const department = await this.departmentRepo.findOne({
+      where: { id },
+      relations: { location: true },
+    });
+    const { location, ...rest } = department;
+    return {
+      ...rest,
+      location: location?.name ?? '',
+    };
+  }
+
   async getDepartmentById(id: number) {
     const department = await this.departmentRepo.findOneBy({ id });
     return department;

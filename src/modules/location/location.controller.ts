@@ -7,6 +7,7 @@ import {
   Body,
   ParseIntPipe,
   Delete,
+  Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
@@ -25,9 +26,9 @@ export class LocationController {
     return await this.locationService.getAllLocations();
   }
 
-  @Get('get-location-by-id')
+  @Get('get-location-by-id/:id')
   @UseGuards(JwtAllAuthGuard)
-  async getLocationById(@Body('id', ParseIntPipe) id: number) {
+  async getLocationById(@Param('id', ParseIntPipe) id: number) {
     return await this.locationService.getLocationById(id);
   }
 

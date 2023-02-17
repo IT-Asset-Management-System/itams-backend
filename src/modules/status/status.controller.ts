@@ -7,6 +7,7 @@ import {
   Body,
   ParseIntPipe,
   Delete,
+  Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
@@ -25,9 +26,9 @@ export class StatusController {
     return await this.statusService.getAllStatuses();
   }
 
-  @Get('get-status-by-id')
+  @Get('get-status-by-id/:id')
   @UseGuards(JwtAllAuthGuard)
-  async getStatusById(@Body('id', ParseIntPipe) id: number) {
+  async getStatusById(@Param('id', ParseIntPipe) id: number) {
     return await this.statusService.getStatusById(id);
   }
 

@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Delete,
   Query,
+  Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
@@ -27,10 +28,10 @@ export class DepartmentController {
     return await this.departmentService.getAllDepartments(departmentQuery);
   }
 
-  @Get('get-department-by-id')
+  @Get('get-department-by-id/:id')
   @UseGuards(JwtAllAuthGuard)
-  async getDepartmentById(@Body('id', ParseIntPipe) id: number) {
-    return await this.departmentService.getDepartmentById(id);
+  async getDepartmentById(@Param('id', ParseIntPipe) id: number) {
+    return await this.departmentService.getDepartmentByDepartmentId(id);
   }
 
   @Post('create-department')

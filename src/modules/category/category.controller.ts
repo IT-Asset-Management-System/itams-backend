@@ -7,6 +7,7 @@ import {
   Body,
   ParseIntPipe,
   Delete,
+  Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
@@ -25,15 +26,15 @@ export class CategoryController {
     return await this.categoryService.getAllCategories();
   }
 
-  @Get('get-category-by-id')
+  @Get('get-category-by-id/:id')
   @UseGuards(JwtAllAuthGuard)
-  async getCategoryById(@Body('id', ParseIntPipe) id: number) {
+  async getCategoryById(@Param('id', ParseIntPipe) id: number) {
     return await this.categoryService.getCategoryById(id);
   }
 
   @Post('create-category')
   @UseGuards(JwtAdminAuthGuard)
-  async createcategory(@Body() categoryDto: CategoryDto) {
+  async createCategory(@Body() categoryDto: CategoryDto) {
     return await this.categoryService.createNewCategory(categoryDto);
   }
 

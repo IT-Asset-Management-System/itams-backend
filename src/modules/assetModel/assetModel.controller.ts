@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Delete,
   Query,
+  Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
@@ -27,10 +28,10 @@ export class AssetModelController {
     return await this.assetModelService.getAllAssetModels(assetModelQuery);
   }
 
-  @Get('get-asset-model-by-id')
+  @Get('get-asset-model-by-id/:id')
   @UseGuards(JwtAllAuthGuard)
-  async getAssetModelById(@Body('id', ParseIntPipe) id: number) {
-    return await this.assetModelService.getAssetModelById(id);
+  async getAssetModelById(@Param('id', ParseIntPipe) id: number) {
+    return await this.assetModelService.getAssetModelByAssetModelId(id);
   }
 
   @Post('create-asset-model')

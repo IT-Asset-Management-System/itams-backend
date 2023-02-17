@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Delete,
   Query,
+  Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
@@ -38,9 +39,9 @@ export class AssetController {
     return await this.assetService.getAssetHistory(assetHistoryQueryDto);
   }
 
-  @Get('get-asset-by-id')
+  @Get('get-asset-by-id/:id')
   @UseGuards(JwtAdminAuthGuard)
-  async getAssetById(@Body('id', ParseIntPipe) id: number) {
+  async getAssetById(@Param('id', ParseIntPipe) id: number) {
     return await this.assetService.getAssetByAssetId(id);
   }
 
