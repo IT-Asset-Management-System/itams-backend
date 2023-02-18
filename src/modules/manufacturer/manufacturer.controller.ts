@@ -8,8 +8,12 @@ import {
   ParseIntPipe,
   Delete,
   Param,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
+import { imageStorageOptions } from 'src/helpers/imageStorage';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
 import { JwtAllAuthGuard } from '../auth/guards/jwt-all-auth.guard';
 import { ManufacturerDto } from './dtos/manufacturer.dto';
@@ -38,6 +42,17 @@ export class ManufacturerController {
     return await this.manufacturerService.createNewManufacturer(
       manufacturerDto,
     );
+  }
+
+  @Post('save-image')
+  @UseGuards(JwtAdminAuthGuard)
+  @UseInterceptors(FileInterceptor('image', imageStorageOptions))
+  async saveImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('id', ParseIntPipe) id: number,
+  ) {
+    const res = await this.manufacturerService.saveImage(id, file);
+    return res;
   }
 
   @Put('update-manufacturer')

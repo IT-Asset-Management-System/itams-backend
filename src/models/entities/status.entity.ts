@@ -16,6 +16,9 @@ export class Status extends BaseEntity {
   @Column({ default: null })
   name: string;
 
+  @Column({ default: '#666' })
+  color: string;
+
   @OneToMany(() => Asset, (asset) => asset.status)
   assets: Asset[];
 

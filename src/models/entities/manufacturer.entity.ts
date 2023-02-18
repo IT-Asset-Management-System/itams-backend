@@ -17,6 +17,9 @@ export class Manufacturer extends BaseEntity {
   @Column({ default: null })
   name: string;
 
+  @Column({ default: null })
+  image: string;
+
   @OneToMany(() => AssetModel, (assetModel) => assetModel.manufacturer)
   assetModels: AssetModel[];
 

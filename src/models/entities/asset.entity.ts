@@ -25,6 +25,9 @@ export class Asset extends BaseEntity {
   name: string;
 
   @Column({ default: null })
+  image: string;
+
+  @Column({ default: null })
   purchase_cost: number;
 
   @Column({ default: null })

@@ -12,6 +12,9 @@ export class Category {
   @Column({ default: null })
   name: string;
 
+  @Column({ default: null })
+  image: string;
+
   @OneToMany(() => AssetModel, (assetModel) => assetModel.category)
   assetModels: AssetModel[];
 

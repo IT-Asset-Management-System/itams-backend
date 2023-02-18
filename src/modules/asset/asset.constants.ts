@@ -8,3 +8,5 @@ export enum CheckType {
   CHECKIN = 'checkin',
   CHECKOUT = 'checkout',
 }
+
+export const IMAGE_PATH = 'asset/image';
