@@ -61,7 +61,7 @@ export class UsersService {
     user.username = userDto.username;
     user.password = await bcrypt.hash(userDto.password, 10);
     user.phone = userDto.phone;
-    user.email = user.email;
+    user.email = userDto.email;
     user.birthday = userDto.birthday;
     user.avatar = userDto.avatar;
     user.department = department;
@@ -115,15 +115,7 @@ export class UsersService {
 
   async getUserById(id: number) {
     const user = await this.userRepo.findOneBy({ id });
-
-    if (user) {
-      return user;
-    }
-
-    throw new HttpException(
-      'No user with this ID has been found',
-      HttpStatus.NOT_FOUND,
-    );
+    return user;
   }
 
   async saveAvatar(user: UserEntity, file: Express.Multer.File) {

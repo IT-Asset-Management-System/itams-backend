@@ -46,7 +46,7 @@ export class DeprecationService {
       );
     const deprecation = new Deprecation();
     deprecation.name = deprecationDto.name;
-    deprecation.months = deprecation.months;
+    deprecation.months = deprecationDto.months;
     const category = await this.categoryService.getCategoryById(
       deprecationDto.categoryId,
     );
