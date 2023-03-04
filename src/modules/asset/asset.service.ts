@@ -153,9 +153,17 @@ export class AssetService {
         department: true,
         status: true,
         supplier: true,
+        assetToUsers: true,
       },
     });
-    const { assetModel, department, status, supplier, ...rest } = asset;
+    const { assetModel, assetToUsers, department, status, supplier, ...rest } = asset;
+    const assetToUser = await this.assetToUserRepo.findOne({
+      relations: { user: true },
+      where: { asset: { id: asset.id } },
+    });
+    const user = assetToUser
+      ? await this.userService.getUserById(assetToUser?.user?.id)
+      : null;
     return {
       ...rest,
       assetModel: asset?.assetModel?.name,
@@ -163,6 +171,9 @@ export class AssetService {
       status: asset?.status?.name,
       statusColor: asset?.status?.color,
       supplier: asset?.supplier?.name,
+      username: assetToUser ? user?.name : null,
+      user: user,
+      check_type: assetToUser ? CheckType.CHECKIN : CheckType.CHECKOUT,
     };
   }
 
@@ -277,11 +288,16 @@ export class AssetService {
       where: { id: checkoutAssetDto.assetId },
     });
     const user = await this.userService.getUserById(checkoutAssetDto.userId);
+    const status = await this.statusService.getStatusById(checkoutAssetDto.statusId);
+    const department = await this.departmentService.getDepartmentByUserId(user.id);
+    asset.status = status;
+    asset.department = department;
     const assetToUser = new AssetToUser();
     assetToUser.asset = asset;
     assetToUser.user = user;
     assetToUser.checkout_date = checkoutAssetDto.checkout_date;
     assetToUser.checkout_note = checkoutAssetDto.checkout_note;
+    await this.assetRepo.save(asset);
     await this.assetToUserRepo.save(assetToUser);
     await this.mailService.sendUserCheckoutAsset(user, asset);
     return assetToUser;
@@ -294,10 +310,12 @@ export class AssetService {
     const department = await this.departmentService.getDepartmentById(
       checkinAssetDto.departmentId,
     );
+    const status = await this.statusService.getStatusById(checkinAssetDto.statusId);
     const assetToUser = await this.assetToUserRepo.findOneBy({
       asset: { id: checkinAssetDto.assetId },
     });
     asset.department = department;
+    asset.status = status;
     assetToUser.checkin_date = checkinAssetDto.checkin_date;
     assetToUser.checkin_note = checkinAssetDto.checkin_note;
     await this.assetRepo.save(asset);
