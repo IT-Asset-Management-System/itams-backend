@@ -13,6 +13,7 @@ import AssetToInventory from './assetToInventory.entity';
 import AssetToUser from './assetToUser.entity';
 import Department from './department.entity';
 import Inventory from './inventory.entity';
+import LicenseToAsset from './licenseToAsset.entity';
 import Status from './status.entity';
 import Supplier from './supplier.entity';
 
@@ -38,6 +39,9 @@ export class Asset extends BaseEntity {
 
   @OneToMany(() => AssetToUser, (assetToUser) => assetToUser.asset)
   assetToUsers: AssetToUser[];
+
+  @OneToMany(() => LicenseToAsset, (licenseToAsset) => licenseToAsset.asset)
+  licenseToAssets: LicenseToAsset[];
 
   @OneToMany(
     () => AssetToInventory,

@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Category } from './category.entity';
+import LicenseToAsset from './licenseToAsset.entity';
 import Manufacturer from './manufacturer.entity';
 import Supplier from './supplier.entity';
 
@@ -19,6 +20,9 @@ export class License extends BaseEntity {
   name: string;
 
   @Column({ default: null })
+  key: string;
+
+  @Column({ default: null })
   purchase_cost: number;
 
   @Column({ default: null })
@@ -26,6 +30,12 @@ export class License extends BaseEntity {
 
   @Column({ default: null })
   expiration_date: Date;
+
+  @Column()
+  seats: number;
+
+  @OneToMany(() => LicenseToAsset, (licenseToAsset) => licenseToAsset.license)
+  licenseToAssets: LicenseToAsset[];
 
   @ManyToOne(() => Category, (category) => category.licenses)
   category: Category;

@@ -12,6 +12,7 @@ import AssetToUser from './assetToUser.entity';
 import Department from './department.entity';
 import Location from './location.entity';
 import { RequestAsset } from './requestAssest.entity';
+import SourceCodeToUser from './sourceCodeToUser.entity';
 
 @Entity()
 export class UserEntity extends BaseEntity {
@@ -53,6 +54,12 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => AssetToUser, (assetToUser) => assetToUser.user)
   assetToUsers: AssetToUser[];
+
+  @OneToMany(
+    () => SourceCodeToUser,
+    (sourceCodeToUser) => sourceCodeToUser.user,
+  )
+  sourceCodeToUsers: SourceCodeToUser[];
 
   @OneToMany(() => RequestAsset, (requestAsset) => requestAsset.user)
   requestAssets: RequestAsset[];

@@ -52,7 +52,9 @@ export class DepartmentService {
   }
 
   async getDepartmentByUserId(id: number) {
-    const department = await this.departmentRepo.findOne({ where: {users: {id: id}} });
+    const department = await this.departmentRepo.findOne({
+      where: { users: { id: id } },
+    });
     return department;
   }
 

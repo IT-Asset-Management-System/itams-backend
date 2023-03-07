@@ -1,5 +1,13 @@
 import { IsBoolean } from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn, BaseEntity } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  BaseEntity,
+  OneToMany,
+} from 'typeorm';
+import DigitalContentToSourceCode from './digitalContentToSourceCode.entity';
+import SourceCodeToUser from './sourceCodeToUser.entity';
 
 @Entity()
 export class SourceCode extends BaseEntity {
@@ -31,6 +39,18 @@ export class SourceCode extends BaseEntity {
     default: null,
   })
   url: string;
+
+  @OneToMany(
+    () => SourceCodeToUser,
+    (sourceCodeToUser) => sourceCodeToUser.sourceCode,
+  )
+  sourceCodeToUsers: SourceCodeToUser[];
+
+  @OneToMany(
+    () => DigitalContentToSourceCode,
+    (digitalContentToSourceCode) => digitalContentToSourceCode.sourceCode,
+  )
+  digitalContentToSourceCodes: DigitalContentToSourceCode[];
 }
 
 export default SourceCode;
