@@ -1,17 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class CheckinLicenseDto {
+export class CheckinSourceCodeDto {
   @ApiProperty({ required: true })
   @IsNotEmpty()
-  licenseToAssetId: number;
+  sourceCodeToUserId: number;
 
   @ApiProperty({ required: true })
   @IsNotEmpty()
-  checkin_date: Date;
+  end_date: Date;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
-  checkin_note: string;
+  end_note: string;
 }

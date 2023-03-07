@@ -201,13 +201,13 @@ export class LicenseService {
 
   async checkinLicense(checkinLicenseDto: CheckinLicenseDto) {
     const licenseToAsset = await this.licenseToAssetRepo.findOneBy({
-      license: { id: checkinLicenseDto.licenseId },
+      id: checkinLicenseDto.licenseToAssetId,
     });
     licenseToAsset.checkin_date = checkinLicenseDto.checkin_date;
     licenseToAsset.checkin_note = checkinLicenseDto.checkin_note;
     await this.licenseToAssetRepo.save(licenseToAsset);
     await this.licenseToAssetRepo.softDelete({
-      license: { id: checkinLicenseDto.licenseId },
+      id: checkinLicenseDto.licenseToAssetId,
     });
     return licenseToAsset;
   }
