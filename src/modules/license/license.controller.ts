@@ -9,11 +9,15 @@ import {
   ParseIntPipe,
   Delete,
   Query,
+  Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAdminAuthGuard } from '../auth/guards/jwt-admin-auth.guard';
+import { CheckinLicenseDto } from './dtos/checkinLicense.dto';
+import { CheckoutLicenseDto } from './dtos/checkoutLicense.dto';
 import { LicenseDto } from './dtos/license.dto';
 import { LicenseQueryDto } from './dtos/licenseQuery.dto';
+import { LicenseToAssetQueryDto } from './dtos/licenseToAsset.dto';
 import { LicenseService } from './license.service';
 
 @ApiTags('license')
@@ -27,10 +31,16 @@ export class LicenseController {
     return await this.licenseService.getAll(licenseQuery);
   }
 
-  @Get('get-license-by-id')
+  @Get('get-license-by-id/:id')
   @UseGuards(JwtAdminAuthGuard)
-  async getLicenseById(@Body('id', ParseIntPipe) id: number) {
+  async getLicenseById(@Param('id', ParseIntPipe) id: number) {
     return await this.licenseService.getLicenseByLicenseId(id);
+  }
+
+  @Get('license-to-asset')
+  @UseGuards(JwtAdminAuthGuard)
+  async getLicenseToAsset(@Query() licenseToAssetDto: LicenseToAssetQueryDto) {
+    return await this.licenseService.getLicenseToAsset(licenseToAssetDto);
   }
 
   @Post('create-license')
@@ -52,5 +62,17 @@ export class LicenseController {
   @UseGuards(JwtAdminAuthGuard)
   async deleteLicense(@Body('id', ParseIntPipe) id: number) {
     return await this.licenseService.deleteLicense(id);
+  }
+
+  @Post('checkout-license')
+  @UseGuards(JwtAdminAuthGuard)
+  async checkoutLicense(@Body() checkoutLicenseDto: CheckoutLicenseDto) {
+    return await this.licenseService.checkoutLicense(checkoutLicenseDto);
+  }
+
+  @Post('checkin-license')
+  @UseGuards(JwtAdminAuthGuard)
+  async checkinLicense(@Body() checkinLicenseDto: CheckinLicenseDto) {
+    return await this.licenseService.checkinLicense(checkinLicenseDto);
   }
 }

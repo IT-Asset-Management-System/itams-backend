@@ -8,6 +8,11 @@ export class LicenseDto {
   name: string;
 
   @ApiProperty({ required: true })
+  @IsString()
+  @IsNotEmpty()
+  key: string;
+
+  @ApiProperty({ required: true })
   @IsNotEmpty()
   purchase_cost: number;
 
@@ -18,6 +23,10 @@ export class LicenseDto {
   @ApiProperty({ required: true })
   @IsNotEmpty()
   expiration_date: Date;
+
+  @ApiProperty({ required: true })
+  @IsNotEmpty()
+  seats: number;
 
   @ApiProperty({ required: true })
   @IsNotEmpty()

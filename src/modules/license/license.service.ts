@@ -1,4 +1,11 @@
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 import { Cron } from '@nestjs/schedule';
@@ -11,6 +18,12 @@ import { LicenseDto } from './dtos/license.dto';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from '../notification/notification.constants';
 import { LicenseQueryDto } from './dtos/licenseQuery.dto';
+import { CheckoutLicenseDto } from './dtos/checkoutLicense.dto';
+import { CheckinLicenseDto } from './dtos/checkinLicense.dto';
+import LicenseToAsset from 'src/models/entities/licenseToAsset.entity';
+import { AssetService } from '../asset/asset.service';
+import { LicenseToAssetRepository } from 'src/models/repositories/licenseToAsset.repository';
+import { LicenseToAssetQueryDto } from './dtos/licenseToAsset.dto';
 
 @Injectable()
 export class LicenseService {
@@ -19,6 +32,9 @@ export class LicenseService {
   constructor(
     @InjectRepository(License)
     private licenseRepo: LicenseRepository,
+    @InjectRepository(LicenseToAsset)
+    private licenseToAssetRepo: LicenseToAssetRepository,
+    private assetService: AssetService,
     private categoryService: CategoryService,
     private manufacturerService: ManufacturerService,
     private supplierService: SupplierService,
@@ -32,6 +48,7 @@ export class LicenseService {
         category: true,
         manufacturer: true,
         supplier: true,
+        licenseToAssets: true,
       },
       where: {
         category: { id: licenseQuery.categoryId },
@@ -40,12 +57,14 @@ export class LicenseService {
       },
     });
     const res = licenses.map((license) => {
-      const { category, manufacturer, supplier, ...rest } = license;
+      const { category, manufacturer, supplier, licenseToAssets, ...rest } =
+        license;
       return {
         ...rest,
         category: license?.category?.name,
         manufacturer: license?.manufacturer?.name,
         supplier: license?.supplier?.name,
+        available: license.seats - licenseToAssets?.length,
       };
     });
     return res;
@@ -58,15 +77,43 @@ export class LicenseService {
         category: true,
         manufacturer: true,
         supplier: true,
+        licenseToAssets: true,
       },
     });
-    const { category, manufacturer, supplier, ...rest } = license;
+    const { category, manufacturer, supplier, licenseToAssets, ...rest } =
+      license;
     return {
       ...rest,
       category: license?.category?.name,
       manufacturer: license?.manufacturer?.name,
       supplier: license?.supplier?.name,
+      available: license.seats - licenseToAssets?.length,
     };
+  }
+
+  async getLicenseToAsset(licenseToAssetQueryDto?: LicenseToAssetQueryDto) {
+    const licenseToAssets = await this.licenseToAssetRepo.find({
+      relations: {
+        asset: true,
+        license: true,
+      },
+      where: {
+        asset: { id: licenseToAssetQueryDto.assetId },
+        license: { id: licenseToAssetQueryDto.licenseId },
+      },
+      withDeleted: licenseToAssetQueryDto.withDeleted,
+    });
+    const res = licenseToAssets.map((licenseToAsset) => {
+      const { asset, license, ...rest } = licenseToAsset;
+      return {
+        ...rest,
+        assetId: asset?.id,
+        assetName: asset?.name,
+        licenseId: license?.id,
+        licenseName: license?.name,
+      };
+    });
+    return res;
   }
 
   async createNewLicense(licenseDto: LicenseDto) {
@@ -82,9 +129,11 @@ export class LicenseService {
 
     const license = new License();
     license.name = licenseDto.name;
+    license.key = licenseDto.key;
     license.purchase_cost = licenseDto.purchase_cost;
     license.purchase_date = licenseDto.purchase_date;
     license.expiration_date = licenseDto.expiration_date;
+    license.seats = licenseDto.seats;
     license.category = category;
     license.manufacturer = manufacturer;
     license.supplier = supplier;
@@ -127,6 +176,40 @@ export class LicenseService {
   async getLicenseById(id: number) {
     const license: License = await this.licenseRepo.findOneBy({ id });
     return license;
+  }
+
+  /*------------------------ checkin/checkout license ------------------------- */
+
+  async checkoutLicense(checkoutLicenseDto: CheckoutLicenseDto) {
+    const license = await this.licenseRepo.findOne({
+      relations: { licenseToAssets: true },
+      where: { id: checkoutLicenseDto.licenseId },
+    });
+    if (license.licenseToAssets.length >= license.seats)
+      throw new HttpException('This license is full', HttpStatus.BAD_REQUEST);
+    const asset = await this.assetService.getAssetById(
+      checkoutLicenseDto.assetId,
+    );
+    const licenseToAsset = new LicenseToAsset();
+    licenseToAsset.asset = asset;
+    licenseToAsset.license = license;
+    licenseToAsset.checkout_date = checkoutLicenseDto.checkout_date;
+    licenseToAsset.checkout_note = checkoutLicenseDto.checkout_note;
+    await this.licenseToAssetRepo.save(licenseToAsset);
+    return licenseToAsset;
+  }
+
+  async checkinLicense(checkinLicenseDto: CheckinLicenseDto) {
+    const licenseToAsset = await this.licenseToAssetRepo.findOneBy({
+      license: { id: checkinLicenseDto.licenseId },
+    });
+    licenseToAsset.checkin_date = checkinLicenseDto.checkin_date;
+    licenseToAsset.checkin_note = checkinLicenseDto.checkin_note;
+    await this.licenseToAssetRepo.save(licenseToAsset);
+    await this.licenseToAssetRepo.softDelete({
+      license: { id: checkinLicenseDto.licenseId },
+    });
+    return licenseToAsset;
   }
 
   /*------------------------ cron ------------------------- */

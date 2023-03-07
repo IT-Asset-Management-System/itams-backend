@@ -156,7 +156,8 @@ export class AssetService {
         assetToUsers: true,
       },
     });
-    const { assetModel, assetToUsers, department, status, supplier, ...rest } = asset;
+    const { assetModel, assetToUsers, department, status, supplier, ...rest } =
+      asset;
     const assetToUser = await this.assetToUserRepo.findOne({
       relations: { user: true },
       where: { asset: { id: asset.id } },
@@ -288,8 +289,12 @@ export class AssetService {
       where: { id: checkoutAssetDto.assetId },
     });
     const user = await this.userService.getUserById(checkoutAssetDto.userId);
-    const status = await this.statusService.getStatusById(checkoutAssetDto.statusId);
-    const department = await this.departmentService.getDepartmentByUserId(user.id);
+    const status = await this.statusService.getStatusById(
+      checkoutAssetDto.statusId,
+    );
+    const department = await this.departmentService.getDepartmentByUserId(
+      user.id,
+    );
     asset.status = status;
     asset.department = department;
     const assetToUser = new AssetToUser();
@@ -310,7 +315,9 @@ export class AssetService {
     const department = await this.departmentService.getDepartmentById(
       checkinAssetDto.departmentId,
     );
-    const status = await this.statusService.getStatusById(checkinAssetDto.statusId);
+    const status = await this.statusService.getStatusById(
+      checkinAssetDto.statusId,
+    );
     const assetToUser = await this.assetToUserRepo.findOneBy({
       asset: { id: checkinAssetDto.assetId },
     });
