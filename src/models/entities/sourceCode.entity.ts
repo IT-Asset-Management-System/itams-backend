@@ -6,6 +6,7 @@ import {
   BaseEntity,
   OneToMany,
 } from 'typeorm';
+import DigitalContentToSourceCode from './digitalContentToSourceCode.entity';
 import SourceCodeToUser from './sourceCodeToUser.entity';
 
 @Entity()
@@ -44,6 +45,12 @@ export class SourceCode extends BaseEntity {
     (sourceCodeToUser) => sourceCodeToUser.sourceCode,
   )
   sourceCodeToUsers: SourceCodeToUser[];
+
+  @OneToMany(
+    () => DigitalContentToSourceCode,
+    (digitalContentToSourceCode) => digitalContentToSourceCode.sourceCode,
+  )
+  digitalContentToSourceCodes: DigitalContentToSourceCode[];
 }
 
 export default SourceCode;

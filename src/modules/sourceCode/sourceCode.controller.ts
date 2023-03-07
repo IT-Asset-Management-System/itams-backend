@@ -38,7 +38,7 @@ export class SourceCodeController {
 
   @Get('source-code-to-user')
   @UseGuards(JwtAdminAuthGuard)
-  async getsourceCodeToAsset(
+  async getSourceCodeToUser(
     @Query() sourceCodeToUserDto: SourceCodeToUserQueryDto,
   ) {
     return await this.sourceCodeService.getSourceCodeToUser(
