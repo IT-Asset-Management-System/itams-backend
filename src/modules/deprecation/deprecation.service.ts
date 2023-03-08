@@ -56,10 +56,21 @@ export class DeprecationService {
   }
 
   async updateDeprecation(id: number, deprecationDto: DeprecationDto) {
-    let toUpdate = await this.deprecationRepo.findOneBy({ id });
+    try {
+      let toUpdate = await this.deprecationRepo.findOneBy({ id });
 
-    let updated = Object.assign(toUpdate, deprecationDto);
-    return await this.deprecationRepo.save(updated);
+      let updated = Object.assign(toUpdate, deprecationDto);
+      const category = await this.categoryService.getCategoryById(
+        deprecationDto.categoryId,
+      );
+      updated.category = category;
+      return await this.deprecationRepo.save(updated);
+    } catch (err) {
+      throw new HttpException(
+        'This category has been set',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   async deleteDeprecation(id: number) {
