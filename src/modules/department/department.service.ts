@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Department from 'src/models/entities/department.entity';
 import { DepartmentRepository } from 'src/models/repositories/department.repository';
@@ -59,6 +59,11 @@ export class DepartmentService {
   }
 
   async createNewDepartment(departmentDto: DepartmentDto) {
+    if (await this.departmentRepo.findOneBy({ name: departmentDto.name }))
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     const department = new Department();
     department.name = departmentDto.name;
     const location = await this.locationService.getLocationById(
@@ -70,6 +75,15 @@ export class DepartmentService {
   }
 
   async updateDepartment(id: number, departmentDto: DepartmentDto) {
+    if (
+      (await this.departmentRepo.findOneBy({ id }))?.name !==
+        departmentDto.name &&
+      (await this.departmentRepo.findOneBy({ name: departmentDto.name }))
+    )
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     let toUpdate = await this.departmentRepo.findOneBy({ id });
     let { locationId, ...rest } = departmentDto;
     const location = await this.locationService.getLocationById(
@@ -81,6 +95,13 @@ export class DepartmentService {
   }
 
   async deleteDepartment(id: number) {
-    return await this.departmentRepo.delete({ id });
+    try {
+      return await this.departmentRepo.delete({ id });
+    } catch (err) {
+      throw new HttpException(
+        'This value is still in use',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

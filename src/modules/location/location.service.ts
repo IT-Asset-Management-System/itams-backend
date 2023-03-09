@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Location } from 'src/models/entities/location.entity';
 import { LocationRepository } from 'src/models/repositories/location.entity';
@@ -32,6 +32,11 @@ export class LocationService {
   }
 
   async createNewLocation(locationDto: LocationDto) {
+    if (await this.locationRepo.findOneBy({ name: locationDto.name }))
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     const location = new Location();
     location.name = locationDto.name;
     location.address = locationDto.address;
@@ -40,6 +45,14 @@ export class LocationService {
   }
 
   async updateLocation(id: number, locationDto: LocationDto) {
+    if (
+      (await this.locationRepo.findOneBy({ id }))?.name !== locationDto.name &&
+      (await this.locationRepo.findOneBy({ name: locationDto.name }))
+    )
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     let toUpdate = await this.locationRepo.findOneBy({ id });
 
     let updated = Object.assign(toUpdate, locationDto);
@@ -47,6 +60,13 @@ export class LocationService {
   }
 
   async deleteLocation(id: number) {
-    return await this.locationRepo.delete({ id });
+    try {
+      return await this.locationRepo.delete({ id });
+    } catch (err) {
+      throw new HttpException(
+        'This value is still in use',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

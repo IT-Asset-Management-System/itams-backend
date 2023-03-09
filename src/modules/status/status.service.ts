@@ -1,4 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Status from 'src/models/entities/status.entity';
 import { StatusRepository } from 'src/models/repositories/status.repository';
@@ -30,6 +36,11 @@ export class StatusService {
   }
 
   async createNewStatus(statusDto: StatusDto) {
+    if (await this.statusRepo.findOneBy({ name: statusDto.name }))
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     const status = new Status();
     status.name = statusDto.name;
     status.color = statusDto.color;
@@ -38,6 +49,14 @@ export class StatusService {
   }
 
   async updateStatus(id: number, statusDto: StatusDto) {
+    if (
+      (await this.statusRepo.findOneBy({ id }))?.name !== statusDto.name &&
+      (await this.statusRepo.findOneBy({ name: statusDto.name }))
+    )
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     let toUpdate = await this.statusRepo.findOneBy({ id });
 
     let updated = Object.assign(toUpdate, statusDto);
@@ -45,6 +64,13 @@ export class StatusService {
   }
 
   async deleteStatus(id: number) {
-    return await this.statusRepo.delete({ id });
+    try {
+      return await this.statusRepo.delete({ id });
+    } catch (err) {
+      throw new HttpException(
+        'This value is still in use',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

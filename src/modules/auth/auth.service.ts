@@ -73,7 +73,15 @@ export class AuthService {
     currentPassword: string,
     newPassword: string,
   ) {
-    await this.checkPassword(currentPassword, hashPassword);
+    const isPasswordTrue = await this.checkPassword(
+      currentPassword,
+      hashPassword,
+    );
+    if (!isPasswordTrue)
+      throw new HttpException(
+        'Current password is incorrect',
+        HttpStatus.BAD_REQUEST,
+      );
     await this.usersService.setNewPassword(username, newPassword);
   }
 
@@ -83,7 +91,15 @@ export class AuthService {
     currentPassword: string,
     newPassword: string,
   ) {
-    await this.checkPassword(currentPassword, hashPassword);
+    const isPasswordTrue = await this.checkPassword(
+      currentPassword,
+      hashPassword,
+    );
+    if (!isPasswordTrue)
+      throw new HttpException(
+        'Current password is incorrect',
+        HttpStatus.BAD_REQUEST,
+      );
     await this.adminService.setNewPassword(username, newPassword);
   }
 

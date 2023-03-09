@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Supplier } from 'src/models/entities/supplier.entity';
 import { SupplierRepository } from 'src/models/repositories/supplier.repository';
@@ -33,6 +33,11 @@ export class SupplierService {
   }
 
   async createNewSupplier(supplierDto: SupplierDto) {
+    if (await this.supplierRepo.findOneBy({ name: supplierDto.name }))
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     const supplier = new Supplier();
     supplier.name = supplierDto.name;
     await this.supplierRepo.save(supplier);
@@ -40,6 +45,14 @@ export class SupplierService {
   }
 
   async updateSupplier(id: number, supplierDto: SupplierDto) {
+    if (
+      (await this.supplierRepo.findOneBy({ id }))?.name !== supplierDto.name &&
+      (await this.supplierRepo.findOneBy({ name: supplierDto.name }))
+    )
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     let toUpdate = await this.supplierRepo.findOneBy({ id });
 
     let updated = Object.assign(toUpdate, supplierDto);
@@ -47,6 +60,13 @@ export class SupplierService {
   }
 
   async deleteSupplier(id: number) {
-    return await this.supplierRepo.delete({ id });
+    try {
+      return await this.supplierRepo.delete({ id });
+    } catch (err) {
+      throw new HttpException(
+        'This value is still in use',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

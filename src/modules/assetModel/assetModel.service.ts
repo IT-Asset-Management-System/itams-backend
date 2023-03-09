@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import AssetModel from 'src/models/entities/assetModel.entity';
 import { AssetModelRepository } from 'src/models/repositories/assetModel.repository';
@@ -59,6 +59,11 @@ export class AssetModelService {
   }
 
   async createNewAssetModel(assetModelDto: AssetModelDto) {
+    if (await this.assetModelRepo.findOneBy({ name: assetModelDto.name }))
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     const category = await this.categoryService.getCategoryById(
       assetModelDto.categoryId,
     );
@@ -83,6 +88,15 @@ export class AssetModelService {
   }
 
   async updateAssetModel(id: number, assetModelDto: AssetModelDto) {
+    if (
+      (await this.assetModelRepo.findOneBy({ id }))?.name !==
+        assetModelDto.name &&
+      (await this.assetModelRepo.findOneBy({ name: assetModelDto.name }))
+    )
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     let toUpdate = await this.assetModelRepo.findOneBy({ id });
     let { categoryId, manufacturerId, ...rest } = assetModelDto;
     const category = await this.categoryService.getCategoryById(
@@ -98,7 +112,14 @@ export class AssetModelService {
   }
 
   async deleteAssetModel(id: number) {
-    return await this.assetModelRepo.delete({ id });
+    try {
+      return await this.assetModelRepo.delete({ id });
+    } catch (err) {
+      throw new HttpException(
+        'This value is still in use',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   /*------------------------ cron ------------------------- */

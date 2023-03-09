@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/models/entities/category.entity';
 import { CategoryRepository } from 'src/models/repositories/category.repository';
@@ -36,6 +36,11 @@ export class CategoryService {
   }
 
   async createNewCategory(categoryDto: CategoryDto) {
+    if (await this.categoryRepo.findOneBy({ name: categoryDto.name }))
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     const category = new Category();
     category.name = categoryDto.name;
     await this.categoryRepo.save(category);
@@ -50,6 +55,14 @@ export class CategoryService {
   }
 
   async updateCategory(id: number, categoryDto: CategoryDto) {
+    if (
+      (await this.categoryRepo.findOneBy({ id }))?.name !== categoryDto.name &&
+      (await this.categoryRepo.findOneBy({ name: categoryDto.name }))
+    )
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     let toUpdate = await this.categoryRepo.findOneBy({ id });
 
     let updated = Object.assign(toUpdate, categoryDto);
@@ -57,6 +70,13 @@ export class CategoryService {
   }
 
   async deleteCategory(id: number) {
-    return await this.categoryRepo.delete({ id });
+    try {
+      return await this.categoryRepo.delete({ id });
+    } catch (err) {
+      throw new HttpException(
+        'This value is still in use',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

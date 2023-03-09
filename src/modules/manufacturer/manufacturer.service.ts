@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Manufacturer } from 'src/models/entities/manufacturer.entity';
 import { ManufacturerRepository } from 'src/models/repositories/manufacturer.repository';
@@ -37,6 +37,11 @@ export class ManufacturerService {
   }
 
   async createNewManufacturer(manufacturerDto: ManufacturerDto) {
+    if (await this.manufacturerRepo.findOneBy({ name: manufacturerDto.name }))
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     const manufacturer = new Manufacturer();
     manufacturer.name = manufacturerDto.name;
     await this.manufacturerRepo.save(manufacturer);
@@ -51,6 +56,15 @@ export class ManufacturerService {
   }
 
   async updateManufacturer(id: number, manufacturerDto: ManufacturerDto) {
+    if (
+      (await this.manufacturerRepo.findOneBy({ id }))?.name !==
+        manufacturerDto.name &&
+      (await this.manufacturerRepo.findOneBy({ name: manufacturerDto.name }))
+    )
+      throw new HttpException(
+        'This value already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     let toUpdate = await this.manufacturerRepo.findOneBy({ id });
 
     let updated = Object.assign(toUpdate, manufacturerDto);
@@ -58,6 +72,13 @@ export class ManufacturerService {
   }
 
   async deleteManufacturer(id: number) {
-    return await this.manufacturerRepo.delete({ id });
+    try {
+      return await this.manufacturerRepo.delete({ id });
+    } catch (err) {
+      throw new HttpException(
+        'This value is still in use',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }
