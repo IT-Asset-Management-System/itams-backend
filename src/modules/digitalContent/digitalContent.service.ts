@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DigitalContent } from 'src/models/entities/digitalContent.entity';
 import DigitalContentToSourceCode from 'src/models/entities/digitalContentToSourceCode.entity';
@@ -81,6 +81,18 @@ export class DigitalContentService {
   async checkoutDigitalContent(
     checkoutDigitalContentDto: CheckoutDigitalContentDto,
   ) {
+    if (
+      await this.digitalContentToSourceCodeRepo.findOne({
+        where: {
+          digitalContent: { id: checkoutDigitalContentDto.digitalContentId },
+          sourceCode: { id: checkoutDigitalContentDto.sourceCodeId },
+        },
+      })
+    )
+      throw new HttpException(
+        'This source code is already checkout',
+        HttpStatus.BAD_REQUEST,
+      );
     const digitalContent = await this.digitalContentRepo.findOne({
       where: { id: checkoutDigitalContentDto.digitalContentId },
     });

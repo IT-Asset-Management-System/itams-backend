@@ -187,6 +187,18 @@ export class LicenseService {
     });
     if (license.licenseToAssets.length >= license.seats)
       throw new HttpException('This license is full', HttpStatus.BAD_REQUEST);
+    if (
+      await this.licenseToAssetRepo.findOne({
+        where: {
+          asset: { id: checkoutLicenseDto.assetId },
+          license: { id: checkoutLicenseDto.licenseId },
+        },
+      })
+    )
+      throw new HttpException(
+        'This asset is already checkout',
+        HttpStatus.BAD_REQUEST,
+      );
     const asset = await this.assetService.getAssetById(
       checkoutLicenseDto.assetId,
     );
