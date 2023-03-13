@@ -1,6 +1,7 @@
 import {
   BaseEntity,
   Column,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -37,21 +38,27 @@ export class Asset extends BaseEntity {
   @Column({ default: null })
   purchase_date: Date;
 
-  @OneToMany(() => AssetToUser, (assetToUser) => assetToUser.asset)
+  @OneToMany(() => AssetToUser, (assetToUser) => assetToUser.asset, {
+    cascade: ['soft-remove'],
+  })
   assetToUsers: AssetToUser[];
 
-  @OneToMany(() => LicenseToAsset, (licenseToAsset) => licenseToAsset.asset)
+  @OneToMany(() => LicenseToAsset, (licenseToAsset) => licenseToAsset.asset, {
+    cascade: ['soft-remove'],
+  })
   licenseToAssets: LicenseToAsset[];
 
   @OneToMany(
     () => AssetToInventory,
     (assetToInventory) => assetToInventory.asset,
+    { cascade: ['soft-remove'] },
   )
   assetToInventories: AssetToInventory[];
 
   @OneToMany(
     () => AssetMaintenance,
     (assetMaintenance) => assetMaintenance.asset,
+    { cascade: ['soft-remove'] },
   )
   assetMaintenances: AssetMaintenance[];
 
@@ -66,6 +73,11 @@ export class Asset extends BaseEntity {
 
   @ManyToOne(() => Supplier, (supplier) => supplier.assets)
   supplier: Supplier;
+
+  @DeleteDateColumn({
+    default: null,
+  })
+  deletedAt: Date;
 }
 
 export default Asset;

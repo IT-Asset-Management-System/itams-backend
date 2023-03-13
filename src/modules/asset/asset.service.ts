@@ -271,12 +271,19 @@ export class AssetService {
 
   async deleteAsset(id: number) {
     try {
-      const deleted = await this.assetRepo.delete({ id });
       await this.notificationService.deleteNotification(
         NotificationType.LICENSE,
         id,
       );
-      return deleted;
+      const toRemove = await this.assetRepo.findOneOrFail({
+        where: { id },
+        relations: {
+          assetToUsers: true,
+          assetMaintenances: true,
+          licenseToAssets: true,
+        },
+      });
+      return await this.assetRepo.softRemove(toRemove);
     } catch (err) {
       throw new HttpException('Cannot delete', HttpStatus.BAD_REQUEST);
     }

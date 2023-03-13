@@ -1,5 +1,6 @@
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   OneToOne,
@@ -30,4 +31,9 @@ export class AssetMaintenance {
 
   @Column({ default: null })
   note: string;
+
+  @DeleteDateColumn({
+    default: null,
+  })
+  deletedAt: Date;
 }

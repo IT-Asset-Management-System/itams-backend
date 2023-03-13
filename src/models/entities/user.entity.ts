@@ -7,6 +7,7 @@ import {
   ManyToOne,
   BaseEntity,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import AssetToUser from './assetToUser.entity';
 import Department from './department.entity';
@@ -52,17 +53,27 @@ export class UserEntity extends BaseEntity {
   @ManyToOne(() => Department, (department) => department.users)
   department: Department;
 
-  @OneToMany(() => AssetToUser, (assetToUser) => assetToUser.user)
+  @OneToMany(() => AssetToUser, (assetToUser) => assetToUser.user, {
+    cascade: ['soft-remove'],
+  })
   assetToUsers: AssetToUser[];
 
   @OneToMany(
     () => SourceCodeToUser,
     (sourceCodeToUser) => sourceCodeToUser.user,
+    { cascade: ['soft-remove'] },
   )
   sourceCodeToUsers: SourceCodeToUser[];
 
-  @OneToMany(() => RequestAsset, (requestAsset) => requestAsset.user)
+  @OneToMany(() => RequestAsset, (requestAsset) => requestAsset.user, {
+    cascade: ['soft-remove'],
+  })
   requestAssets: RequestAsset[];
+
+  @DeleteDateColumn({
+    default: null,
+  })
+  deletedAt: Date;
 }
 
 export default UserEntity;

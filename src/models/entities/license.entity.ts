@@ -5,6 +5,7 @@ import {
   OneToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Category } from './category.entity';
 import LicenseToAsset from './licenseToAsset.entity';
@@ -34,7 +35,9 @@ export class License extends BaseEntity {
   @Column()
   seats: number;
 
-  @OneToMany(() => LicenseToAsset, (licenseToAsset) => licenseToAsset.license)
+  @OneToMany(() => LicenseToAsset, (licenseToAsset) => licenseToAsset.license, {
+    cascade: ['soft-remove'],
+  })
   licenseToAssets: LicenseToAsset[];
 
   @ManyToOne(() => Category, (category) => category.licenses)
@@ -45,6 +48,11 @@ export class License extends BaseEntity {
 
   @ManyToOne(() => Supplier, (supplier) => supplier.licenses)
   supplier: Supplier;
+
+  @DeleteDateColumn({
+    default: null,
+  })
+  deletedAt: Date;
 }
 
 export default License;

@@ -102,7 +102,15 @@ export class UsersService {
   }
 
   async deleteUser(id: number) {
-    return await this.userRepo.delete({ id });
+    const toRemove = await this.userRepo.findOneOrFail({
+      where: { id },
+      relations: {
+        assetToUsers: true,
+        sourceCodeToUsers: true,
+        requestAssets: true,
+      },
+    });
+    return await this.userRepo.softRemove(toRemove);
   }
 
   async getUserByUsername(username: string) {

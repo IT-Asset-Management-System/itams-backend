@@ -165,12 +165,15 @@ export class LicenseService {
   }
 
   async deleteLicense(id: number) {
-    const deleted = await this.licenseRepo.delete({ id });
     await this.notificationService.deleteNotification(
       NotificationType.LICENSE,
       id,
     );
-    return deleted;
+    const toRemove = await this.licenseRepo.findOneOrFail({
+      where: { id },
+      relations: { licenseToAssets: true },
+    });
+    return await this.licenseRepo.softRemove(toRemove);
   }
 
   async getLicenseById(id: number) {
@@ -187,6 +190,18 @@ export class LicenseService {
     });
     if (license.licenseToAssets.length >= license.seats)
       throw new HttpException('This license is full', HttpStatus.BAD_REQUEST);
+    if (
+      await this.licenseToAssetRepo.findOne({
+        where: {
+          asset: { id: checkoutLicenseDto.assetId },
+          license: { id: checkoutLicenseDto.licenseId },
+        },
+      })
+    )
+      throw new HttpException(
+        'This asset is already checkout',
+        HttpStatus.BAD_REQUEST,
+      );
     const asset = await this.assetService.getAssetById(
       checkoutLicenseDto.assetId,
     );

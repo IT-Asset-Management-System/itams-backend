@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SourceCode } from 'src/models/entities/sourceCode.entity';
 import SourceCodeToUser from 'src/models/entities/sourceCodeToUser.entity';
@@ -73,12 +73,28 @@ export class SourceCodeService {
   }
 
   async deleteSourceCode(id: number) {
-    return await this.sourceCodeRepo.delete({ id });
+    const toRemove = await this.sourceCodeRepo.findOneOrFail({
+      where: { id },
+      relations: { digitalContentToSourceCodes: true, sourceCodeToUsers: true },
+    });
+    return await this.sourceCodeRepo.softRemove(toRemove);
   }
 
   /*------------------------ checkin/checkout sourceCode ------------------------- */
 
   async checkoutSourceCode(checkoutSourceCodeDto: CheckoutSourceCodeDto) {
+    if (
+      await this.sourceCodeToUserRepo.findOne({
+        where: {
+          sourceCode: { id: checkoutSourceCodeDto.sourceCodeId },
+          user: { id: checkoutSourceCodeDto.userId },
+        },
+      })
+    )
+      throw new HttpException(
+        'This user is already checkout',
+        HttpStatus.BAD_REQUEST,
+      );
     const sourceCode = await this.sourceCodeRepo.findOne({
       where: { id: checkoutSourceCodeDto.sourceCodeId },
     });

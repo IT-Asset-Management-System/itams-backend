@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   BaseEntity,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import DigitalContentToSourceCode from './digitalContentToSourceCode.entity';
 
@@ -42,8 +43,14 @@ export class DigitalContent extends BaseEntity {
   @OneToMany(
     () => DigitalContentToSourceCode,
     (digitalContentToSourceCode) => digitalContentToSourceCode.digitalContent,
+    { cascade: ['soft-remove'] },
   )
   digitalContentToSourceCodes: DigitalContentToSourceCode[];
+
+  @DeleteDateColumn({
+    default: null,
+  })
+  deletedAt: Date;
 }
 
 export default DigitalContent;
