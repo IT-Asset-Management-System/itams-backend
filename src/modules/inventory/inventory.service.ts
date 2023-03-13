@@ -94,6 +94,7 @@ export class InventoryService {
       await this.assetToInventoryRepo.find({
         where: { inventory: { id } },
         relations: { asset: true, old_status: true, new_status: true },
+        withDeleted: true,
       });
     const res = assetToInventories.map((assetToInventory) => {
       const { asset, old_status, new_status, ...rest } = assetToInventory;

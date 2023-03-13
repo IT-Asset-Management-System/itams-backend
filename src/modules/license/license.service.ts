@@ -165,12 +165,15 @@ export class LicenseService {
   }
 
   async deleteLicense(id: number) {
-    const deleted = await this.licenseRepo.delete({ id });
     await this.notificationService.deleteNotification(
       NotificationType.LICENSE,
       id,
     );
-    return deleted;
+    const toRemove = await this.licenseRepo.findOneOrFail({
+      where: { id },
+      relations: { licenseToAssets: true },
+    });
+    return await this.licenseRepo.softRemove(toRemove);
   }
 
   async getLicenseById(id: number) {

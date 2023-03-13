@@ -73,7 +73,11 @@ export class DigitalContentService {
   }
 
   async deleteDigitalContent(id: number) {
-    return await this.digitalContentRepo.delete({ id });
+    const toRemove = await this.digitalContentRepo.findOneOrFail({
+      where: { id },
+      relations: { digitalContentToSourceCodes: true },
+    });
+    return await this.digitalContentRepo.softRemove(toRemove);
   }
 
   /*------------------------ checkin/checkout sourceCode ------------------------- */

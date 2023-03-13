@@ -73,7 +73,11 @@ export class SourceCodeService {
   }
 
   async deleteSourceCode(id: number) {
-    return await this.sourceCodeRepo.delete({ id });
+    const toRemove = await this.sourceCodeRepo.findOneOrFail({
+      where: { id },
+      relations: { digitalContentToSourceCodes: true, sourceCodeToUsers: true },
+    });
+    return await this.sourceCodeRepo.softRemove(toRemove);
   }
 
   /*------------------------ checkin/checkout sourceCode ------------------------- */
