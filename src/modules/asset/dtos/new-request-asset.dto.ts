@@ -4,7 +4,7 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class NewRequestAsset {
   @ApiProperty({ required: true })
   @IsNotEmpty()
-  assetModelId: number;
+  categoryId: number;
 
   @ApiProperty()
   @IsString()

@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import AssetModel from './assetModel.entity';
+import { Category } from './category.entity';
 import UserEntity from './user.entity';
 
 @Entity()
@@ -22,8 +23,8 @@ export class RequestAsset {
   @Column({ default: null })
   assetId: number;
 
-  @ManyToOne(() => AssetModel, (assetModel) => assetModel.requestAssets)
-  assetModel: AssetModel;
+  @ManyToOne(() => Category, (category) => category.requestAssets)
+  category: Category;
 
   @ManyToOne(() => UserEntity, (userEntity) => userEntity.requestAssets)
   user: UserEntity;

@@ -414,23 +414,33 @@ export class AssetService {
 
   /*------------------------ request asset ------------------------- */
 
-  async getAssetsByModel(assetModelId: number) {
-    const assets: Asset[] = await this.assetRepo.find({
-      relations: { assetToUsers: true },
-      where: { assetModel: { id: assetModelId } },
-    });
-    return assets.filter((asset: Asset) => asset.assetToUsers.length === 0);
+  async getAssetsByCategory(categoryId: number) {
+    const assetModels =
+      await this.assetModelService.getAllAssetModelsByCategory(categoryId);
+    const assets2D: Asset[][] = await Promise.all(
+      assetModels.map(async (assetModel: AssetModel) => {
+        return await this.assetRepo.find({
+          where: { assetModel: { id: assetModel.id } },
+          relations: { assetToUsers: true },
+        });
+      }),
+    );
+    const assets: Asset[] = [].concat(...assets2D);
+    return assets
+      .filter((asset: Asset) => asset.assetToUsers.length === 0)
+      .sort((a, b) => a.id - b.id);
   }
 
   async getAllRequestAssets() {
     const requestAsset = await this.requestAssetRepo.find({
-      relations: { assetModel: true, user: true },
+      relations: { category: true, user: true },
     });
     const res = requestAsset.map((r: RequestAsset) => {
-      const { assetModel, user, ...rest } = r;
+      const { category, user, ...rest } = r;
       return {
         ...rest,
-        assetModel: assetModel.name,
+        category: category.name,
+        categoryId: category.id,
         name: user.name,
         username: user.username,
       };
@@ -571,11 +581,11 @@ export class AssetService {
   async getAssetRequestedByUser(id: number) {
     const requestAsset = await this.requestAssetRepo.find({
       where: { user: { id } },
-      relations: { assetModel: true },
+      relations: { category: true },
     });
     const res = requestAsset.map((r: RequestAsset) => {
-      const { assetModel, ...rest } = r;
-      return { ...rest, assetModel: assetModel.name };
+      const { category, ...rest } = r;
+      return { ...rest, category: category.name };
     });
     return res;
   }
@@ -585,13 +595,13 @@ export class AssetService {
 
     const user = await this.userService.getUserById(userId);
     const admins = await this.adminService.getAllAdmins();
-    const assetModel = await this.assetModelService.getAssetModelById(
-      newRequest.assetModelId,
+    const category = await this.categoryService.getCategoryById(
+      newRequest.categoryId,
     );
-    if (!assetModel)
-      throw new HttpException('Model not exist', HttpStatus.BAD_REQUEST);
+    if (!category)
+      throw new HttpException('Category not exist', HttpStatus.BAD_REQUEST);
     newRequestAsset.user = user;
-    newRequestAsset.assetModel = assetModel;
+    newRequestAsset.category = category;
     newRequestAsset.note = newRequest.note;
     await this.requestAssetRepo.save(newRequestAsset);
     await Promise.all(

@@ -126,10 +126,10 @@ export class AssetController {
     return await this.assetService.rejectRequest(id);
   }
 
-  @Get('asset-by-model')
+  @Get('asset-by-category')
   @UseGuards(JwtAdminAuthGuard)
-  async getAssetsByModel(@Query('assetModelId') assetModelId: number) {
-    return await this.assetService.getAssetsByModel(assetModelId);
+  async getAssetsByModel(@Query('categoryId') categoryId: number) {
+    return await this.assetService.getAssetsByCategory(categoryId);
   }
 
   /*------------------------ user ------------------------- */
