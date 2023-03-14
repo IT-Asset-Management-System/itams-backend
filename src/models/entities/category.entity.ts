@@ -20,4 +20,7 @@ export class Category {
 
   @OneToMany(() => License, (license) => license.category)
   licenses: License[];
+
+  @OneToMany(() => RequestAsset, (requestAsset) => requestAsset.category)
+  requestAssets: RequestAsset[];
 }

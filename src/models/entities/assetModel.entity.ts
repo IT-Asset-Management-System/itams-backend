@@ -9,7 +9,6 @@ import {
 import Asset from './asset.entity';
 import { Category } from './category.entity';
 import Manufacturer from './manufacturer.entity';
-import { RequestAsset } from './requestAssest.entity';
 
 @Entity()
 export class AssetModel extends BaseEntity {
@@ -27,9 +26,6 @@ export class AssetModel extends BaseEntity {
 
   @OneToMany(() => Asset, (asset) => asset.assetModel)
   assets: Asset[];
-
-  @OneToMany(() => RequestAsset, (requestAsset) => requestAsset.assetModel)
-  requestAssets: RequestAsset[];
 
   @ManyToOne(() => Category, (category) => category.assetModels)
   category: Category;
