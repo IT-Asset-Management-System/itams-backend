@@ -119,6 +119,55 @@ export class AssetService {
     ).filter((item) => Boolean(item));
   }
 
+  async getDeletedAssets() {
+    const assets = await this.assetRepo.find({
+      relations: {
+        assetModel: true,
+        department: true,
+        status: true,
+        supplier: true,
+        assetToUsers: true,
+      },
+      where: {
+        deletedAt: Not(IsNull())
+      },
+      withDeleted: true
+    });
+    return (
+      await Promise.all(
+        assets.map(async (asset) => {
+          const {
+            assetModel,
+            department,
+            status,
+            supplier,
+            assetToUsers,
+            ...rest
+          } = asset;
+          const assetToUser = await this.assetToUserRepo.findOne({
+            relations: { user: true },
+            where: { asset: { id: asset.id } },
+          });
+          const user = assetToUser
+            ? await this.userService.getUserById(assetToUser?.user?.id)
+            : null;
+          const res = {
+            ...rest,
+            assetModel: asset?.assetModel?.name,
+            department: asset?.department?.name,
+            status: asset?.status?.name,
+            statusColor: asset?.status?.color,
+            supplier: asset?.supplier?.name,
+            username: assetToUser ? user?.name : null,
+            user: user,
+            check_type: assetToUser ? CheckType.CHECKIN : CheckType.CHECKOUT,
+          };
+          return res;
+        }),
+      )
+    ).filter((item) => Boolean(item));
+  }
+
   async getAssetHistory(assetHistoryQueryDto?: AssetHistoryQueryDto) {
     const assetToUsers: AssetToUser[] = await this.assetToUserRepo.find({
       relations: {

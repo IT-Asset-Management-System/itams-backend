@@ -37,6 +37,12 @@ export class AssetController {
     return await this.assetService.getAll(assetQuery);
   }
 
+  @Get('deleted-assets')
+  @UseGuards(JwtAdminAuthGuard)
+  async getDeletedAssets() {
+    return await this.assetService.getDeletedAssets();
+  }
+
   @Get('asset-history')
   @UseGuards(JwtAdminAuthGuard)
   async getAssetHistory(@Query() assetHistoryQueryDto: AssetHistoryQueryDto) {
