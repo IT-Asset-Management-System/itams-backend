@@ -75,7 +75,7 @@ export class AssetModelService {
     assetModel.name = assetModelDto.name;
     assetModel.category = category;
     assetModel.manufacturer = manufacturer;
-
+    assetModel.cpe = this.createCPE(manufacturer.name, assetModelDto.name);
     await this.assetModelRepo.save(assetModel);
     return assetModel;
   }
@@ -108,6 +108,7 @@ export class AssetModelService {
     let updated = Object.assign(toUpdate, rest);
     updated.category = category;
     updated.manufacturer = manufacturer;
+    updated.cpe = this.createCPE(manufacturer.name, assetModelDto.name);
     return await this.assetModelRepo.save(updated);
   }
 
@@ -120,6 +121,12 @@ export class AssetModelService {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  createCPE(vendor: string, product: string) {
+    vendor = vendor.toLowerCase().replace(new RegExp(' ', 'g'), '_');
+    product = product.toLowerCase().replace(new RegExp(' ', 'g'), '_');
+    return `cpe:/h:${vendor}:${product}`;
   }
 
   /*------------------------ cron ------------------------- */

@@ -129,9 +129,9 @@ export class AssetService {
         assetToUsers: true,
       },
       where: {
-        deletedAt: Not(IsNull())
+        deletedAt: Not(IsNull()),
       },
-      withDeleted: true
+      withDeleted: true,
     });
     return (
       await Promise.all(
