@@ -22,6 +22,9 @@ export class AssetModel extends BaseEntity {
   @Column({ default: null })
   image: string;
 
+  @Column({ default: null })
+  cpe: string;
+
   @OneToMany(() => Asset, (asset) => asset.assetModel)
   assets: Asset[];
 
